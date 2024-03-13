@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">DiplomaApp</string>
+    <string name="app_title">IotSystem</string>
+
+    <string name="first_fragment_label">MQTT Setup</string>
+    <string name="second_fragment_label">Devices Setup</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+    <string name="add_system">Add system</string>
+    <string name="switch_page">Switch page</string>
+    <string name="add_mqtt_broaker_connection">Add MQTT Broaker Connection</string>
+    <string name="MqttIp">IP Address:Port</string>
+    <string name="Username">Login</string>
+    <string name="password">Password</string>
+    <string name="skip">Skip</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="systems_list">Systems list</string>
+</resources>
