@@ -1,20 +1,20 @@
 package com.example.diplomaapp;
 
 public class Devices {
-    private String type;
+    private String deviceId;
     private String channel;
 
-    public Devices(String type, String channel) {
-        this.type = type;
+    public Devices(String deviceId, String channel) {
+        this.deviceId = deviceId;
         this.channel = channel;
     }
 
-    public String getType() {
-        return type;
+    public String getDeviceId() {
+        return deviceId;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setDeviceId(String deviceId) {
+        this.deviceId = deviceId;
     }
 
     public String getChannel() {

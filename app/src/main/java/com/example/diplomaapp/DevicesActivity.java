@@ -38,7 +38,7 @@ public class DevicesActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_devices);
 
-//        connectToMqtt();
+        connectToMqtt();
 
         initCardView();
         setListeners();
@@ -71,9 +71,9 @@ public class DevicesActivity extends AppCompatActivity {
     }
 
     private void createDataForRecycler() {
-        Devices devices1 = new Devices("Led1", "l1");
+        Devices devices1 = new Devices("0x02145243255322B", "Temperature: 27^C\nPressure: 980 Pa\nLight: 832 Lum");
         devices.add(devices1);
-        devices1 = new Devices("Led2", "l2");
+        devices1 = new Devices("Led", "l2");
         devices.add(devices1);
         devices1 = new Devices("Led3", "l3");
         devices.add(devices1);
@@ -106,19 +106,10 @@ public class DevicesActivity extends AppCompatActivity {
         ConstraintLayout constraintLayout = findViewById(R.id.conLayout);
 
         if(isInternetConnection()) {
-
-            mqttHelper = new MqttHelper(getApplicationContext(), "mqtt://172.20.10.10:1883",
+            mqttHelper = new MqttHelper(getApplicationContext(), "tcp://192.168.1.105:1883",
                     "Yaroslav", "26112002");
-            if(mqttHelper.isConnected()){
-
-                loadingSpinner.setVisibility(View.INVISIBLE);
-                constraintLayout.setAlpha(0f);
-
-                Toast.makeText(getApplicationContext(), "mqtt +", Toast.LENGTH_LONG).show();
-//                mqttHelper.subscribeToTopic("zigbee2mqtt/0x00124B00281A9824/l1/set");
-//                mqttHelper.publishMessage("172.20.10.10/check", "Off");
-            }
-            else Toast.makeText(getApplicationContext(), "mqtt -", Toast.LENGTH_LONG).show();
+//                loadingSpinner.setVisibility(View.INVISIBLE);
+//                constraintLayout.setAlpha(0f);
         }else {
             loadingSpinner.setVisibility(View.VISIBLE);
             constraintLayout.setAlpha(0.4f);

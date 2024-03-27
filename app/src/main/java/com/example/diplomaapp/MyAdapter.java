@@ -10,7 +10,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
@@ -32,7 +31,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
         }
 
         public void SetDetails(Devices device){
-            textNameCard.setText(device.getType());
+            textNameCard.setText(device.getDeviceId());
             textDataCard.setText(device.getChannel());
             switchButton.setChecked(true);
         }

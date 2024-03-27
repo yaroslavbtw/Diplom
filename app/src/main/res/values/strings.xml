@@ -17,5 +17,5 @@
     <string name="cancel">Cancel</string>
     <string name="systems_list">Systems list</string>
     <string name="image_first_fragment_description">image of IoT</string>
-    <string name="On_off">On/Off</string>
+    <string name="On_off">Off/On led</string>
 </resources>

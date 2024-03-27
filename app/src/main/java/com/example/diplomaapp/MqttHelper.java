@@ -26,7 +26,7 @@ public class MqttHelper {
 
             @Override
             public void messageArrived(String topic, MqttMessage message) throws Exception {
-                // Handle incoming message
+                Log.i("MQTT", message.toString());
             }
 
             @Override
@@ -45,12 +45,14 @@ public class MqttHelper {
             mqttAndroidClient.connect(mqttConnectOptions, null, new IMqttActionListener() {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
-                    // Successfully connected to MQTT broker
+                    Log.i("MQTT", "Successfully CONNECTED");
+                    subscribeToTopic("zigbee2mqtt/0x123456789/l1/state");
+                    publishMessage("zigbee2mqtt/0x123456789/l1/state", "Off");
                 }
 
                 @Override
                 public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                    // Failed to connect to MQTT broker
+                    Log.i("MQTT", "Failed to CONNECT " + exception.toString());
                 }
             });
         } catch (Exception ex) {
@@ -64,15 +66,16 @@ public class MqttHelper {
             mqttAndroidClient.subscribe(topic, 0, null, new IMqttActionListener() {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
-                    // Successfully subscribed to topic
+                    Log.i("MQTT", "CONNECTED TO TOPIC");
                 }
 
                 @Override
                 public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                    // Failed to subscribe to topic
+                    Log.i("MQTT", "NOT CONNECTED TO TOPIC");
                 }
             });
         } catch (Exception ex) {
+            Log.i("MQTT", ex.toString());
             ex.printStackTrace();
         }
     }
@@ -96,6 +99,8 @@ public class MqttHelper {
     }
 
     public boolean isConnected() {
+        Log.i("mqttAndroidClient", mqttAndroidClient.toString());
+        Log.i("mqttConnect", String.valueOf(mqttAndroidClient.isConnected()));
         return mqttAndroidClient != null && mqttAndroidClient.isConnected();
     }
 }
