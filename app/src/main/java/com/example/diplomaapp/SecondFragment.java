@@ -1,7 +1,5 @@
 package com.example.diplomaapp;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,7 +32,7 @@ public class SecondFragment extends Fragment {
         binding.buttonSave.setOnClickListener(v -> {
 
             dbHelper = new DBHelper(requireContext());
-            dbHelper.addSystem("Гараж", "Led, car, door");
+            dbHelper.addSystem("Дом", "чайник, утюг");
             Toast.makeText(requireContext(), "Successfully added system!", Toast.LENGTH_LONG).show();
             NavHostFragment.findNavController(SecondFragment.this)
                     .navigate(R.id.action_SecondFragment_to_mainActivity);

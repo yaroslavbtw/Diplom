@@ -1,12 +1,14 @@
 package com.example.diplomaapp;
 
 import android.content.Context;
+import android.util.Log;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
+import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
@@ -14,7 +16,8 @@ public class MqttHelper {
 
     private MqttAndroidClient mqttAndroidClient;
 
-    public MqttHelper(Context appContext, String serverUri, String clientId, final String username, final String password) {
+    public MqttHelper(Context appContext, String serverUri, final String username, final String password) {
+        String clientId = MqttClient.generateClientId();
         mqttAndroidClient = new MqttAndroidClient(appContext, serverUri, clientId);
         mqttAndroidClient.setCallback(new MqttCallback() {
 
@@ -51,6 +54,7 @@ public class MqttHelper {
                 }
             });
         } catch (Exception ex) {
+            Log.i("MQTT", "MQTT NOT CONNECTED");
             ex.printStackTrace();
         }
     }
@@ -89,6 +93,10 @@ public class MqttHelper {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+    }
+
+    public boolean isConnected() {
+        return mqttAndroidClient != null && mqttAndroidClient.isConnected();
     }
 }
 

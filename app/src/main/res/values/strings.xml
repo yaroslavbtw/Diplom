@@ -16,4 +16,6 @@
     <string name="save">Save</string>
     <string name="cancel">Cancel</string>
     <string name="systems_list">Systems list</string>
+    <string name="image_first_fragment_description">image of IoT</string>
+    <string name="On_off">On/Off</string>
 </resources>

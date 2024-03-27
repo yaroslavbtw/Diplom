@@ -31,7 +31,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="188dp"
                 android:scaleType="fitCenter"
-                android:src="@drawable/computer_icons" />
+                android:src="@drawable/computer_icons"
+                android:contentDescription="@string/image_first_fragment_description" />
 
             <TextView
                 android:id="@+id/AddMqttConnectionText"
@@ -109,23 +110,23 @@
         </LinearLayout>
 
         <Button
-            android:id="@+id/button_first"
-            android:layout_width="118dp"
-            android:layout_height="60dp"
+            android:id="@+id/button_second"
+            android:layout_width="138dp"
+            android:layout_height="70dp"
             android:layout_marginTop="44dp"
             android:layout_marginEnd="36dp"
-            android:text="@string/next"
+            android:text="@string/cancel"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@+id/linearlay"
             app:layout_constraintTop_toBottomOf="@+id/linearlay" />
 
         <Button
-            android:id="@+id/button_second"
-            android:layout_width="118dp"
-            android:layout_height="60dp"
+            android:id="@+id/button_first"
+            android:layout_width="138dp"
+            android:layout_height="70dp"
             android:layout_marginStart="36dp"
             android:layout_marginTop="44dp"
-            android:text="@string/cancel"
+            android:text="@string/next"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="@+id/linearlay"
             app:layout_constraintTop_toBottomOf="@+id/linearlay" />
