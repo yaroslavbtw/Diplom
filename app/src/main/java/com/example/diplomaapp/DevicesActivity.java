@@ -1,10 +1,12 @@
 package com.example.diplomaapp;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.ProgressBar;
@@ -17,10 +19,12 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.diplomaapp.databinding.ActivityDevicesBinding;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 
@@ -68,6 +72,11 @@ public class DevicesActivity extends AppCompatActivity {
         adapter = new MyAdapter(this, devices);
         mRecyclerView.setAdapter(adapter);
         createDataForRecycler();
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new SwipeToDeleteCallback(this, position -> {
+            Log.i("recycler", "swap");
+            setSnackBar();
+        }));
+        itemTouchHelper.attachToRecyclerView(mRecyclerView);
     }
 
     private void createDataForRecycler() {
@@ -105,15 +114,31 @@ public class DevicesActivity extends AppCompatActivity {
         ProgressBar loadingSpinner = findViewById(R.id.progressBar);
         ConstraintLayout constraintLayout = findViewById(R.id.conLayout);
 
+//        loadingSpinner.setVisibility(View.VISIBLE);
+//        constraintLayout.setVisibility(View.GONE);
+
         if(isInternetConnection()) {
             mqttHelper = new MqttHelper(getApplicationContext(), "tcp://192.168.1.105:1883",
                     "Yaroslav", "26112002");
-//                loadingSpinner.setVisibility(View.INVISIBLE);
-//                constraintLayout.setAlpha(0f);
+            loadingSpinner.setVisibility(View.INVISIBLE);
+            constraintLayout.setVisibility(View.VISIBLE);
         }else {
-            loadingSpinner.setVisibility(View.VISIBLE);
-            constraintLayout.setAlpha(0.4f);
-            Toast.makeText(getApplicationContext(), "wifi -", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), "No internet connection", Toast.LENGTH_LONG).show();
         }
+    }
+
+    public void setSnackBar(){
+        ConstraintLayout lay = findViewById(R.id.mainlayout);
+        Snackbar snackbar = Snackbar.make(this, lay,"Item was removed from the list.", Snackbar.LENGTH_LONG);
+        snackbar.setAction("UNDO", new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.i("SnackBar", "Clicked");
+
+            }
+        });
+
+        snackbar.setActionTextColor(Color.RED);
+        snackbar.show();
     }
 }

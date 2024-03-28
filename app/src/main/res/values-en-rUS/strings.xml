@@ -1,6 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name">IotSystem</string>
     <string name="app_title">IotSystem</string>
-
     <string name="first_fragment_label">MQTT Setup</string>
     <string name="second_fragment_label">Devices Setup</string>
     <string name="next">Next</string>
@@ -18,5 +19,4 @@
     <string name="image_first_fragment_description">image of IoT</string>
     <string name="On_off">Off/On led</string>
     <string name="add_another_device">Add another device</string>
-    <string name="app_name">IotSystem</string>
 </resources>

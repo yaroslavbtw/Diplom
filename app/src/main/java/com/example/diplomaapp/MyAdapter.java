@@ -1,9 +1,11 @@
 package com.example.diplomaapp;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
 
@@ -23,6 +25,8 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
         // each data item is just a string in this case
         public TextView textNameCard, textDataCard;
         public Switch switchButton;
+        public View view;
+
         public ViewHolder(View v) {
             super(v);
             textNameCard = v.findViewById(R.id.textNameCard);
@@ -34,6 +38,10 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
             textNameCard.setText(device.getDeviceId());
             textDataCard.setText(device.getChannel());
             switchButton.setChecked(true);
+        }
+
+        public View getView() {
+            return view;
         }
     }
 
@@ -57,6 +65,14 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Devices device = mDataset.get(position);
         holder.SetDetails(device);
+
+        holder.switchButton.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                Log.i("button", "On " + holder.getAdapterPosition());
+            } else {
+                Log.i("button", "Off " + holder.getAdapterPosition());
+            }
+        });
     }
 
     // Return the size of your dataset (invoked by the layout manager)

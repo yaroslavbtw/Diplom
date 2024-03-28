@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">IotSystem</string>
+    <string name="app_title">IotSystem</string>
+    <string name="first_fragment_label">Настройка MQTT</string>
+    <string name="second_fragment_label">Настройка устройств</string>
+    <string name="next">Далее</string>
+    <string name="previous">Назад</string>
+    <string name="add_system">Добавить систему</string>
+    <string name="switch_page">Перейти</string>
+    <string name="add_mqtt_broaker_connection">Добавить подключение к MQTT брокеру</string>
+    <string name="MqttIp">IP адрес:Порт</string>
+    <string name="Username">Логин</string>
+    <string name="password">Пароль</string>
+    <string name="skip">Пропустить</string>
+    <string name="save">Сохранить</string>
+    <string name="cancel">Отменить</string>
+    <string name="systems_list">Список систем</string>
+    <string name="image_first_fragment_description">изоражение IoT</string>
+    <string name="On_off">Включить/Выключить диод</string>
+    <string name="add_another_device">Добавить другое устройство</string>
+</resources>

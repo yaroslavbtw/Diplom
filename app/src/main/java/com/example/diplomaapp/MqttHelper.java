@@ -2,6 +2,7 @@ package com.example.diplomaapp;
 
 import android.content.Context;
 import android.util.Log;
+import android.widget.Toast;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
@@ -46,6 +47,7 @@ public class MqttHelper {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
                     Log.i("MQTT", "Successfully CONNECTED");
+                    Toast.makeText(appContext.getApplicationContext(), "Successfully mqtt connection", Toast.LENGTH_LONG).show();
                     subscribeToTopic("zigbee2mqtt/0x123456789/l1/state");
                     publishMessage("zigbee2mqtt/0x123456789/l1/state", "Off");
                 }
@@ -53,11 +55,12 @@ public class MqttHelper {
                 @Override
                 public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
                     Log.i("MQTT", "Failed to CONNECT " + exception.toString());
+                    Toast.makeText(appContext.getApplicationContext(), "No mqtt connection", Toast.LENGTH_LONG).show();
                 }
             });
         } catch (Exception ex) {
-            Log.i("MQTT", "MQTT NOT CONNECTED");
             ex.printStackTrace();
+            Log.i("MQTT", ex.toString());
         }
     }
 
@@ -99,8 +102,6 @@ public class MqttHelper {
     }
 
     public boolean isConnected() {
-        Log.i("mqttAndroidClient", mqttAndroidClient.toString());
-        Log.i("mqttConnect", String.valueOf(mqttAndroidClient.isConnected()));
         return mqttAndroidClient != null && mqttAndroidClient.isConnected();
     }
 }
