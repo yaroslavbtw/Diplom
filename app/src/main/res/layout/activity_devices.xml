@@ -7,15 +7,6 @@
     android:layout_height="match_parent"
     tools:context=".DevicesActivity">
 
-  <Button
-      android:id="@+id/buttonAddDeviceInDevicesActivity"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:text="@string/add_another_device"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toBottomOf="@+id/conLayout" />
-
   <androidx.appcompat.widget.Toolbar
       android:id="@+id/toolbar2"
       android:layout_width="match_parent"
@@ -26,8 +17,25 @@
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toTopOf="parent"
-      app:title="Smart devices"
+      app:title="@string/devices"
       app:titleTextColor="#FFFFFF" />
+
+  <TextView
+      android:id="@+id/textViewNoDevices"
+      android:layout_width="269dp"
+      android:layout_height="89dp"
+      android:alpha="0.5"
+      android:gravity="center"
+      android:text="@string/no_devices"
+      android:textAlignment="center"
+      android:textAllCaps="false"
+      android:textSize="24sp"
+      android:textStyle="italic"
+      android:visibility="visible"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="@+id/conLayout"
+      app:layout_constraintStart_toStartOf="@+id/conLayout"
+      app:layout_constraintTop_toBottomOf="@+id/toolbar2" />
 
   <ProgressBar
       android:id="@+id/progressBar"
@@ -46,25 +54,37 @@
 
   <androidx.constraintlayout.widget.ConstraintLayout
       android:id="@+id/conLayout"
-      android:layout_width="409dp"
-      android:layout_height="729dp"
+      android:layout_width="0dp"
+      android:layout_height="0dp"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toTopOf="parent">
+      app:layout_constraintTop_toBottomOf="@+id/toolbar2">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
         android:scrollbars="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+    </androidx.recyclerview.widget.RecyclerView>
 
   </androidx.constraintlayout.widget.ConstraintLayout>
+
+  <com.google.android.material.floatingactionbutton.FloatingActionButton
+      android:id="@+id/addDevice"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_gravity="bottom|end"
+      android:layout_marginEnd="16dp"
+      android:layout_marginBottom="16dp"
+      android:contentDescription="@string/add_another_device"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:srcCompat="@android:drawable/ic_input_add" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

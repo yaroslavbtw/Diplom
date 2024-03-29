@@ -1,16 +1,17 @@
-package com.example.diplomaapp;
+package com.example.diplomaapp.dataClasses;
 
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.diplomaapp.R;
 
 import java.util.ArrayList;
 
@@ -18,9 +19,8 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
     private ArrayList<Devices> mDataset;
     private Context context;
 
-    // Provide a reference to the views for each data item
-// Complex data items may need more than one view per item, and
-// you provide access to all the views for a data item in a view holder
+    public MqttHelper mqttHelper;
+
     public static class ViewHolder extends RecyclerView.ViewHolder {
         // each data item is just a string in this case
         public TextView textNameCard, textDataCard;
@@ -36,7 +36,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
 
         public void SetDetails(Devices device){
             textNameCard.setText(device.getDeviceId());
-            textDataCard.setText(device.getChannel());
+            textDataCard.setText(device.getType());
             switchButton.setChecked(true);
         }
 
@@ -46,9 +46,10 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
     }
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public MyAdapter(Context context, ArrayList<Devices> myDataset) {
+    public MyAdapter(Context context, ArrayList<Devices> myDataset, MqttHelper mqttHelper) {
         this.mDataset = myDataset;
         this.context = context;
+        this.mqttHelper = mqttHelper;
     }
 
     // Create new views (invoked by the layout manager)
@@ -68,9 +69,9 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
 
         holder.switchButton.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
-                Log.i("button", "On " + holder.getAdapterPosition());
+                Log.i("button", "On " + holder.getAdapterPosition() + mqttHelper.isConnected());
             } else {
-                Log.i("button", "Off " + holder.getAdapterPosition());
+                Log.i("button", "Off " + holder.getAdapterPosition() + mqttHelper.isConnected());
             }
         });
     }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">IotSystem</string>
-    <string name="app_title">IotSystem</string>
+    <string name="app_name">Умный Дом</string>
+    <string name="app_title">Умный Дом</string>
     <string name="first_fragment_label">Настройка MQTT</string>
     <string name="second_fragment_label">Настройка устройств</string>
     <string name="next">Далее</string>
@@ -17,6 +17,9 @@
     <string name="cancel">Отменить</string>
     <string name="systems_list">Список систем</string>
     <string name="image_first_fragment_description">изоражение IoT</string>
-    <string name="On_off">Включить/Выключить диод</string>
-    <string name="add_another_device">Добавить другое устройство</string>
+    <string name="On_off">Вкл/Выкл диод</string>
+    <string name="add_another_device">Добавить устройство</string>
+    <string name="devices">Умные устройства</string>
+    <string name="no_devices">Нет устройств</string>
+    <string name="no_systems">Нет систем</string>
 </resources>

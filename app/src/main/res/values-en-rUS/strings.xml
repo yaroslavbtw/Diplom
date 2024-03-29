@@ -18,5 +18,8 @@
     <string name="systems_list">Systems list</string>
     <string name="image_first_fragment_description">image of IoT</string>
     <string name="On_off">Off/On led</string>
-    <string name="add_another_device">Add another device</string>
+    <string name="add_another_device">Add device</string>
+    <string name="devices">Smart devices</string>
+    <string name="no_devices">No devices</string>
+    <string name="no_systems">No systems</string>
 </resources>

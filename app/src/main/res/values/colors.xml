@@ -6,4 +6,5 @@
     <color name="sky">#1E839C</color>
     <color name="my_light_primary">#1C9600</color>
     <color name="my_custom_color">#676E6D</color>
+    <color name="delete_swap">#DF004C</color>
 </resources>

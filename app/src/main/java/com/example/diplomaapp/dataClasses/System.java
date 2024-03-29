@@ -1,4 +1,4 @@
-package com.example.diplomaapp;
+package com.example.diplomaapp.dataClasses;
 
 public class System {
     private String systemName;

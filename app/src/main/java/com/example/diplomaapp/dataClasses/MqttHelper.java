@@ -1,8 +1,10 @@
-package com.example.diplomaapp;
+package com.example.diplomaapp.dataClasses;
 
 import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
+
+import com.example.diplomaapp.listeners.MqttConnectListener;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
@@ -14,10 +16,10 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 public class MqttHelper {
-
     private MqttAndroidClient mqttAndroidClient;
+    
 
-    public MqttHelper(Context appContext, String serverUri, final String username, final String password) {
+    public MqttHelper(Context appContext, String serverUri, final String username, final String password, MqttConnectListener connectListener) {
         String clientId = MqttClient.generateClientId();
         mqttAndroidClient = new MqttAndroidClient(appContext, serverUri, clientId);
         mqttAndroidClient.setCallback(new MqttCallback() {
@@ -47,15 +49,21 @@ public class MqttHelper {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
                     Log.i("MQTT", "Successfully CONNECTED");
-                    Toast.makeText(appContext.getApplicationContext(), "Successfully mqtt connection", Toast.LENGTH_LONG).show();
-                    subscribeToTopic("zigbee2mqtt/0x123456789/l1/state");
-                    publishMessage("zigbee2mqtt/0x123456789/l1/state", "Off");
+                    if (connectListener != null) {
+                        connectListener.onSuccess(); // Уведомляем об успешном подключении
+                    }
+
+//                    subscribeToTopic("zigbee2mqtt/0x123456789/l1/state");
+//                    publishMessage("zigbee2mqtt/0x123456789/l1/state", "Off");
                 }
 
                 @Override
                 public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
                     Log.i("MQTT", "Failed to CONNECT " + exception.toString());
                     Toast.makeText(appContext.getApplicationContext(), "No mqtt connection", Toast.LENGTH_LONG).show();
+                    if (connectListener != null) {
+                        connectListener.onFailure(new Throwable()); // Уведомляем об успешном подключении
+                    }
                 }
             });
         } catch (Exception ex) {

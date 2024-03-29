@@ -9,6 +9,21 @@
     app:layout_collapseMode="parallax"
     tools:context=".MainActivity">
 
+    <TextView
+        android:id="@+id/textViewNoSystems"
+        android:layout_width="247dp"
+        android:layout_height="78dp"
+        android:alpha="0.5"
+        android:gravity="center"
+        android:text="@string/no_systems"
+        android:textAlignment="center"
+        android:textSize="24sp"
+        android:textStyle="italic"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/ListOfSystems"
+        app:layout_constraintStart_toStartOf="@+id/ListOfSystems"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="409dp"
@@ -22,6 +37,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.004"
         app:subtitleTextColor="#FFFFFF"
+        app:title="@string/systems_list"
         app:titleTextColor="#FFFFFF" />
 
     <ListView

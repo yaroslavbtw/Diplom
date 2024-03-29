@@ -17,12 +17,13 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.diplomaapp.dataClasses.DBHelper;
+import com.example.diplomaapp.dataClasses.System;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import androidx.appcompat.widget.Toolbar;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
     private ListView listView;
@@ -37,7 +38,6 @@ public class MainActivity extends AppCompatActivity {
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        Objects.requireNonNull(getSupportActionBar()).setTitle("Systems List");
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.mainlayout), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -62,6 +62,32 @@ public class MainActivity extends AppCompatActivity {
         dbHelper = new DBHelper(this);
 
         systems = dbHelper.getAllSystems();
+
+        TextView textViewNoSystems = findViewById(R.id.textViewNoSystems);
+
+        if (!systems.isEmpty())
+            textViewNoSystems.setVisibility(View.GONE);
+        else textViewNoSystems.setVisibility(View.VISIBLE);
+
+        ArrayAdapter adapter = getAdapter();
+
+        listView.setAdapter(adapter);
+        listView.setOnItemClickListener((parent, view, position, id) -> {
+            System selectedSystem = systems.get(position);
+
+            String systemName = selectedSystem.getSystemName();
+            String mqttUrl = selectedSystem.getMqtt_url();
+
+            Intent intent = new Intent(".DevicesActivity");
+            intent.putExtra("systemName", systemName);
+            intent.putExtra("mqttUrl", mqttUrl);
+
+            startActivity(intent);
+        });
+    }
+
+    @NonNull
+    private ArrayAdapter getAdapter() {
         List<String> systemNames = new ArrayList<>();
 
         for (System system : systems) {
@@ -79,19 +105,7 @@ public class MainActivity extends AppCompatActivity {
                 return view;
             }
         };
-        listView.setAdapter(adapter);
-        listView.setOnItemClickListener((parent, view, position, id) -> {
-            System selectedSystem = systems.get(position);
-
-            String systemName = selectedSystem.getSystemName();
-            String mqttUrl = selectedSystem.getMqtt_url();
-
-            Intent intent = new Intent(".DevicesActivity");
-            intent.putExtra("systemName", systemName);
-            intent.putExtra("mqttUrl", mqttUrl);
-            Log.i("Hello!", "Name: " + systemName + " , url: " + mqttUrl);
-            startActivity(intent);
-        });
+        return adapter;
     }
 
 }

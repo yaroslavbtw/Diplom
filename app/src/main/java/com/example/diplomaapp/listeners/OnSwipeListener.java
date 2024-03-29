@@ -1,4 +1,4 @@
-package com.example.diplomaapp;
+package com.example.diplomaapp.listeners;
 
 public interface OnSwipeListener {
     void onSwipe(int position);
