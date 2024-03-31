@@ -22,4 +22,10 @@
     <string name="devices">Smart devices</string>
     <string name="no_devices">No devices</string>
     <string name="no_systems">No systems</string>
+    <string name="add_device_title">Device configuring</string>
+    <string name="add_img_device">Change device image</string>
+    <string name="friendly_name_hint">Friendly name</string>
+    <string name="device_id_hint">Device ieeeid</string>
+    <string name="device_type_hint">Device type</string>
+    <string name="device_save">Save device</string>
 </resources>

@@ -22,4 +22,10 @@
     <string name="devices">Умные устройства</string>
     <string name="no_devices">Нет устройств</string>
     <string name="no_systems">Нет систем</string>
+    <string name="add_device_title">Конфигурирование устройства</string>
+    <string name="add_img_device">Изменить изображение устройства</string>
+    <string name="friendly_name_hint">Название</string>
+    <string name="device_id_hint">ieeeid устройства</string>
+    <string name="device_type_hint">Тип устройства</string>
+    <string name="device_save">Сохранить устройство</string>
 </resources>

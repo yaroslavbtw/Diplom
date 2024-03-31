@@ -29,40 +29,40 @@ public class FirstFragment extends Fragment {
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         binding.buttonFirst.setOnClickListener(v ->{
-                if(validateData())
+                Bundle bndl = validateData();
+                if(bndl != null)
                     NavHostFragment.findNavController(FirstFragment.this)
-                            .navigate(R.id.action_FirstFragment_to_SecondFragment);
+                            .navigate(R.id.action_FirstFragment_to_SecondFragment, bndl);
         }
         );
         binding.buttonSecond.setOnClickListener(v ->
                 NavHostFragment.findNavController(FirstFragment.this)
                         .navigate(R.id.action_FirstFragment_to_mainActivity)
         );
-
     }
 
-    public boolean validateData(){
+    public Bundle validateData(){
         Bundle bundle = new Bundle();
 
         if(binding.editTextInputIP.getText().toString().isEmpty()) {
             Toast.makeText(requireContext(), "Required IP Address", Toast.LENGTH_LONG).show();
-            return false;
+            return null;
         }
         else {
             Boolean loginEmpty = binding.editTextInputLogin.getText().toString().isEmpty();
             Boolean passwordEmpty = binding.editTextPassword.getText().toString().isEmpty();
             if(loginEmpty && passwordEmpty) {
                 bundle.putString("address", binding.editTextInputIP.getText().toString());
-                return true;
+                return bundle;
             }
             else if(!loginEmpty && !passwordEmpty){
                 bundle.putString("address", binding.editTextInputIP.getText().toString());
                 bundle.putString("login", Objects.requireNonNull(binding.editTextInputLogin.getText()).toString());
                 bundle.putString("password", binding.editTextPassword.getText().toString());
-                return true;
+                return bundle;
             } else {
                 Toast.makeText(requireContext(), "Required full credentials or none", Toast.LENGTH_LONG).show();
-                return false;
+                return null;
             }
         }
     }

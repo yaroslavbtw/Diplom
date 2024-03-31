@@ -1,15 +1,16 @@
 package com.example.diplomaapp.dataClasses;
 
-import androidx.annotation.Nullable;
 
 public class Devices {
     private String deviceId;
     private String type;
+    private String imgPath;
     private String lastAcceptedData;
 
-    public Devices(String deviceId, String type) {
+    public Devices(String deviceId, String type, String imgPath) {
         this.deviceId = deviceId;
         this.type = type;
+        this.imgPath = imgPath;
     }
 
     public String getDeviceId() {
@@ -34,5 +35,13 @@ public class Devices {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public String getImgPath() {
+        return imgPath;
+    }
+
+    public void setImgPath(String imgPath) {
+        this.imgPath = imgPath;
     }
 }

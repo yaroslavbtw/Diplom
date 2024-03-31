@@ -18,7 +18,6 @@ import java.util.ArrayList;
 public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
     private ArrayList<Devices> mDataset;
     private Context context;
-
     public MqttHelper mqttHelper;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

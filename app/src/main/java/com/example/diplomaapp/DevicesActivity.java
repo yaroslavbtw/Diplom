@@ -56,7 +56,7 @@ public class DevicesActivity extends AppCompatActivity {
 
         String systemName = intent.getStringExtra("systemName");
         String mqttUrl = intent.getStringExtra("mqttUrl");
-        Log.i("mqtt", "name: " + systemName + ", url: " + mqttUrl);
+
         system = new System(systemName, mqttUrl);
 
         connectToMqtt();
@@ -75,17 +75,16 @@ public class DevicesActivity extends AppCompatActivity {
         mRecyclerView.setLayoutManager(new LinearLayoutManager((this)));
 
         dbHelper = new DBHelper(this);
-        dbHelper.addDevice(new Devices("0x124gfegfd", "kura"), system);
-        dbHelper.addDevice(new Devices("0x124gfegfd", "kura"), system);
         devices = dbHelper.getAllDevices(system);
-
         adapter = new MyAdapter(this, devices, mqttHelper);
         mRecyclerView.setAdapter(adapter);
-        createDataForRecycler();
+        updateDataForRecycler();
 
         callback = new SwipeToDeleteCallback(this, position -> {
 
             DeleteConfirmationDialog.show(this, "Are you sure you want to remove this item?", () -> {
+                Devices dev = devices.get(position);
+                dbHelper.deleteDevice(dev);
                 devices.remove(position);
                 adapter.notifyDataSetChanged();
             }, () -> {
@@ -97,13 +96,12 @@ public class DevicesActivity extends AppCompatActivity {
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    private void createDataForRecycler() {
-
+    private void updateDataForRecycler() {
         TextView textViewNoDevices = findViewById(R.id.textViewNoDevices);
         if(!devices.isEmpty())
-            textViewNoDevices.setVisibility(View.VISIBLE);
-        else
             textViewNoDevices.setVisibility(View.GONE);
+        else
+            textViewNoDevices.setVisibility(View.VISIBLE);
 
         adapter.notifyDataSetChanged();
     }
@@ -164,7 +162,10 @@ public class DevicesActivity extends AppCompatActivity {
     public void setListeners(){
         FloatingActionButton addDeviceButton = findViewById(R.id.addDevice);
         addDeviceButton.setOnClickListener(v -> {
-            mqttHelper.publishMessage("zigbee2mqtt/test", "test");
+            Intent intent = new Intent(".AddDevice");
+            intent.putExtra("systemName", system.getSystemName());
+            intent.putExtra("mqttUrl", system.getMqtt_url());
+            startActivity(intent);
         });
     }
 }
