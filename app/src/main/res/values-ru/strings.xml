@@ -9,7 +9,7 @@
     <string name="add_system">Добавить систему</string>
     <string name="switch_page">Перейти</string>
     <string name="add_mqtt_broaker_connection">Добавить подключение к MQTT брокеру</string>
-    <string name="MqttIp">IP адрес:Порт</string>
+    <string name="MqttIp">IP адрес или домен</string>
     <string name="Username">Логин</string>
     <string name="password">Пароль</string>
     <string name="skip">Пропустить</string>
@@ -28,4 +28,7 @@
     <string name="device_id_hint">ieeeid устройства</string>
     <string name="device_type_hint">Тип устройства</string>
     <string name="device_save">Сохранить устройство</string>
+    <string name="port">Порт</string>
+    <string name="system_name">Конфигурирование системы</string>
+    <string name="system_name_hint">Название системы</string>
 </resources>

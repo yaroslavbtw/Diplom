@@ -2,10 +2,11 @@ package com.example.diplomaapp.dataClasses;
 
 
 public class Devices {
+    private String friendlyName = "";
     private String deviceId;
     private String type;
-    private String imgPath;
-    private String lastAcceptedData;
+    private String imgPath = "";
+    private String lastAcceptedData = "";
 
     public Devices(String deviceId, String type, String imgPath) {
         this.deviceId = deviceId;
@@ -43,5 +44,13 @@ public class Devices {
 
     public void setImgPath(String imgPath) {
         this.imgPath = imgPath;
+    }
+
+    public String getFriendlyName() {
+        return friendlyName;
+    }
+
+    public void setFriendlyName(String friendlyName) {
+        this.friendlyName = friendlyName;
     }
 }

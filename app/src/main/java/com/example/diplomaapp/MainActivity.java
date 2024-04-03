@@ -18,6 +18,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.diplomaapp.dataClasses.DBHelper;
+import com.example.diplomaapp.dataClasses.Devices;
 import com.example.diplomaapp.dataClasses.System;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import androidx.appcompat.widget.Toolbar;
@@ -53,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
         addSystemButton.setOnClickListener(v -> {
             Intent intent = new Intent(".SecondActivity");
             startActivity(intent);
+            setListItems();
         });
     }
 
@@ -83,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
             intent.putExtra("mqttUrl", mqttUrl);
 
             startActivity(intent);
+            setListItems();
         });
     }
 
@@ -100,7 +103,12 @@ public class MainActivity extends AppCompatActivity {
                 View view = super.getView(position, convertView, parent);
 
                 TextView textViewSubtitle = view.findViewById(R.id.textViewSubtitle);
-                textViewSubtitle.setText(systems.get(position).getMqtt_url());
+
+                ArrayList<Devices> devices = dbHelper.getAllDevices(systems.get(position));
+                StringBuilder devStr = new StringBuilder();
+                devices.forEach((x)->devStr.append(x.getFriendlyName()).append(" "));
+
+                textViewSubtitle.setText(devStr);
 
                 return view;
             }

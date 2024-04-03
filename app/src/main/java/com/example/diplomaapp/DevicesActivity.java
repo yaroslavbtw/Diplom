@@ -9,6 +9,7 @@ import android.net.NetworkCapabilities;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -63,6 +64,16 @@ public class DevicesActivity extends AppCompatActivity {
 
         setListeners();
 
+        ImageButton imageButton = findViewById(R.id.imageButton2);
+        imageButton.setBackground(null);
+        imageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setDevicesList();
+                Toast.makeText(getApplicationContext(), "Refreshed", Toast.LENGTH_SHORT).show();
+            }
+        });
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.mainlayout), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -71,15 +82,7 @@ public class DevicesActivity extends AppCompatActivity {
     }
 
     private void initCardView(MqttHelper mqttHelper) {
-        mRecyclerView = findViewById(R.id.recycler);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager((this)));
-
-        dbHelper = new DBHelper(this);
-        devices = dbHelper.getAllDevices(system);
-        adapter = new MyAdapter(this, devices, mqttHelper);
-        mRecyclerView.setAdapter(adapter);
-        updateDataForRecycler();
-
+        setDevicesList();
         callback = new SwipeToDeleteCallback(this, position -> {
 
             DeleteConfirmationDialog.show(this, "Are you sure you want to remove this item?", () -> {
@@ -167,5 +170,16 @@ public class DevicesActivity extends AppCompatActivity {
             intent.putExtra("mqttUrl", system.getMqtt_url());
             startActivity(intent);
         });
+    }
+
+    private void setDevicesList(){
+        mRecyclerView = findViewById(R.id.recycler);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager((this)));
+
+        dbHelper = new DBHelper(this);
+        devices = dbHelper.getAllDevices(system);
+        adapter = new MyAdapter(this, devices, mqttHelper);
+        mRecyclerView.setAdapter(adapter);
+        updateDataForRecycler();
     }
 }

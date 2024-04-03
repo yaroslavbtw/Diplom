@@ -36,7 +36,7 @@
 
             <TextView
                 android:id="@+id/AddMqttConnectionText"
-                android:layout_width="360dp"
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginTop="10dp"
                 android:fontFamily="sans-serif-medium"
@@ -47,26 +47,50 @@
                 android:textStyle="bold"
                 android:typeface="normal" />
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/textInputIP"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginEnd="8dp">
+                android:orientation="horizontal">
 
-                <EditText
-                    android:id="@+id/editTextInputIP"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/textInputIP"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:ems="10"
-                    android:hint="@string/MqttIp"
-                    android:importantForAutofill="no"
-                    android:inputType="text"
-                    android:textColorHint="#546E7A"
-                    tools:ignore="TextFields,VisualLintTextFieldSize" />
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginEnd="4dp">
+
+                    <EditText
+                        android:id="@+id/editTextInputIP"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:ems="10"
+                        android:hint="@string/MqttIp"
+                        android:importantForAutofill="no"
+                        android:textColorHint="#546E7A"
+                        tools:ignore="TextFields,VisualLintTextFieldSize" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/textInputPort"
+                    android:layout_width="103dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginEnd="8dp">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/editTextInputPort"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/port"
+                        android:inputType="text"
+                        android:textColorHint="#546E7A"
+                        tools:ignore="VisualLintTextFieldSize" />
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/inputUserLogin"
@@ -90,9 +114,9 @@
                 android:id="@+id/inputUserPassword"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
+                android:layout_marginStart="8dp"
                 android:layout_marginTop="10dp"
-                android:layout_marginEnd="10dp"
+                android:layout_marginEnd="8dp"
                 android:layout_marginBottom="20dp">
 
                 <EditText

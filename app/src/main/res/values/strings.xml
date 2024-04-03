@@ -8,7 +8,7 @@
     <string name="add_system">Add system</string>
     <string name="switch_page">Switch page</string>
     <string name="add_mqtt_broaker_connection">Add MQTT Broaker Connection</string>
-    <string name="MqttIp">IP Address:Port</string>
+    <string name="MqttIp">IP Address or Domain</string>
     <string name="Username">Login</string>
     <string name="password">Password</string>
     <string name="skip">Skip</string>
@@ -27,4 +27,7 @@
     <string name="device_id_hint">Device ieeeid</string>
     <string name="device_type_hint">Device type</string>
     <string name="device_save">Save device</string>
+    <string name="port">Port</string>
+    <string name="system_name">Configure system</string>
+    <string name="system_name_hint">System name</string>
 </resources>

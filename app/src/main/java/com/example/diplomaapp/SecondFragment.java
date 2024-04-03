@@ -32,24 +32,38 @@ public class SecondFragment extends Fragment {
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         binding.buttonSave.setOnClickListener(v -> {
-            Bundle args = getArguments();
-            String address = null;
-            String login = null;
-            String password = null;
-            if (args != null) {
-                address = args.getString("address");
-                if (args.containsKey("login")) {
-                    login = args.getString("login");
+            Boolean nameEmpty = binding.textEditSystemName.getText().toString().isEmpty();
+            if(!nameEmpty) {
+                String sysName = binding.textEditSystemName.getText().toString();
+                Bundle args = getArguments();
+                String address = "";
+                String login = "";
+                String password = "";
+
+                if (args != null) {
+                    address = args.getString("address");
+                    if (args.containsKey("login")) {
+                        login = args.getString("login");
+                    }
+                    if (args.containsKey("password")) {
+                        login = args.getString("password");
+                    }
+
+                    dbHelper = new DBHelper(requireContext());
+                    System mySys = new System(sysName, address);
+
+                    if(!login.isEmpty() && !password.isEmpty())
+                    {
+                        mySys.setMqtt_login(login);
+                        mySys.setMqtt_password(password);
+                    }
+
+                    dbHelper.addSystem(mySys);
+                    Toast.makeText(requireContext(), "Successfully added system!", Toast.LENGTH_LONG).show();
+                    NavHostFragment.findNavController(SecondFragment.this)
+                            .navigate(R.id.action_SecondFragment_to_mainActivity);
                 }
-                if (args.containsKey("password")) {
-                    login = args.getString("password");
-                }
-                dbHelper = new DBHelper(requireContext());
-                dbHelper.addSystem(new System("Дом", "чайник, утюг"));
-                Toast.makeText(requireContext(), "Successfully added system!", Toast.LENGTH_LONG).show();
-                NavHostFragment.findNavController(SecondFragment.this)
-                        .navigate(R.id.action_SecondFragment_to_mainActivity);
-            }
+            }else Toast.makeText(requireContext(), "System name field should be filled", Toast.LENGTH_LONG).show();
         });
 
     }

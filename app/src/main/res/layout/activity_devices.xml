@@ -20,6 +20,17 @@
       app:title="@string/devices"
       app:titleTextColor="#FFFFFF" />
 
+  <ImageButton
+      android:id="@+id/imageButton2"
+      android:layout_width="69dp"
+      android:layout_height="49dp"
+      android:layout_marginEnd="20dp"
+      android:clickable="true"
+      app:layout_constraintBottom_toBottomOf="@+id/toolbar2"
+      app:layout_constraintEnd_toEndOf="@+id/toolbar2"
+      app:layout_constraintTop_toTopOf="@+id/toolbar2"
+      app:srcCompat="@drawable/icons8_refresh_30" />
+
   <TextView
       android:id="@+id/textViewNoDevices"
       android:layout_width="269dp"

@@ -26,6 +26,7 @@ import androidx.core.view.WindowInsetsCompat;
 import com.example.diplomaapp.dataClasses.DBHelper;
 import com.example.diplomaapp.dataClasses.Devices;
 import com.example.diplomaapp.dataClasses.System;
+import com.example.diplomaapp.databinding.ActivityAddDeviceBinding;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.io.FileNotFoundException;
@@ -36,12 +37,16 @@ public class AddDevice extends AppCompatActivity {
 
     private static final int RESULT_LOAD_IMG = 5164654;
     private DBHelper dbHelper;
-    private String img;
+    private String img = "";
+    private ActivityAddDeviceBinding binding;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_add_device);
+        binding = ActivityAddDeviceBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
         Button buttonUpload = findViewById(R.id.buttonChangeImg);
         Button buttonSaveDevice = findViewById(R.id.buttonSaveDevice);
@@ -57,15 +62,11 @@ public class AddDevice extends AppCompatActivity {
         buttonSaveDevice.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                TextInputEditText deviceFriendlyName = findViewById(R.id.textInputFriendlyName);
-                TextInputEditText deviceIeeeid = findViewById(R.id.textInputDeviceIeeeid);
-                TextInputEditText deviceType = findViewById(R.id.textInputDeviceType);
+                boolean isFriendlyName =  Objects.requireNonNull(binding.textInputFriendlyName.getText()).toString().isEmpty();
+                boolean isDeviceIeeeid = Objects.requireNonNull(binding.textInputDeviceIeeeid.getText()).toString().isEmpty();
+                boolean isDeviceType = Objects.requireNonNull(binding.textInputDeviceType.getText()).toString().isEmpty();
 
-                String friendlyName = deviceFriendlyName.getText().toString();
-                String ieeeid = deviceIeeeid.getText().toString();
-                String type = deviceType.getText().toString();
-
-                if(!TextUtils.isEmpty(friendlyName) && !TextUtils.isEmpty(ieeeid) && !TextUtils.isEmpty(type))
+                if(!isFriendlyName && !isDeviceIeeeid && !isDeviceType)
                 {
                     dbHelper = new DBHelper(getApplicationContext());
 
@@ -76,14 +77,16 @@ public class AddDevice extends AppCompatActivity {
 
                     System system = new System(systemName, mqttUrl);
 
-                    Log.i("Add Device", ieeeid + type);
-                    Devices device = new Devices(ieeeid, type, img);
+                    String friendlyName = binding.textInputFriendlyName.getText().toString();
+                    String deviceIeeeid = binding.textInputDeviceIeeeid.getText().toString();
+                    String deviceType = binding.textInputDeviceType.getText().toString();
+
+                    Devices device = new Devices(deviceIeeeid, deviceType, img);
+                    device.setFriendlyName(friendlyName);
 
                     dbHelper.addDevice(device, system);
                     dbHelper.close();
-
-                    Intent deviceActivity = new Intent(".DevicesActivity");
-                    startActivity(deviceActivity);
+                    finish();
                 }
                 else Toast.makeText(getApplicationContext(), "All fields should be filled", Toast.LENGTH_LONG).show();;
             }

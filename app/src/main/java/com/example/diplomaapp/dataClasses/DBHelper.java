@@ -25,7 +25,8 @@ public class DBHelper extends SQLiteOpenHelper {
                 "(_id INTEGER PRIMARY KEY AUTOINCREMENT, system_name TEXT NOT NULL, " +
                 "mqtt_url TEXT NOT NULL, mqtt_login TEXT, mqtt_password TEXT)");
         db.execSQL("CREATE TABLE IF NOT EXISTS devices " +
-                "(_id INTEGER PRIMARY KEY AUTOINCREMENT, device_id TEXT NOT NULL UNIQUE, " +
+                "(_id INTEGER PRIMARY KEY AUTOINCREMENT, friendly_name TEXT, " +
+                "device_id TEXT NOT NULL UNIQUE, " +
                 "device_type TEXT NOT NULL, last_data TEXT, " +
                 "system_id INTEGER NOT NULL, " +
                 "img_path TEXT," +
@@ -86,12 +87,15 @@ public class DBHelper extends SQLiteOpenHelper {
         String id = getSystemId(system);
         SQLiteDatabase db = getWritableDatabase();
         String img = device.getImgPath();
+        String friendlyName = device.getFriendlyName();
         ContentValues values = new ContentValues();
         values.put("device_id", device.getDeviceId());
         values.put("device_type", device.getType());
         values.put("system_id", id);
-        if(img != null)
+        if(!img.isEmpty())
             values.put("img_path", img);
+        if(!friendlyName.isEmpty())
+            values.put("friendly_name", friendlyName);
         db.insert("devices", null, values);
         db.close();
     }
@@ -113,13 +117,17 @@ public class DBHelper extends SQLiteOpenHelper {
                 int deviceIdIndex = cursor.getColumnIndex("device_id");
                 int deviceTypeIndex = cursor.getColumnIndex("device_type");
                 int deviceImgIndex = cursor.getColumnIndex("img_path");
+                int deviceFriendlyNameIndex = cursor.getColumnIndex("friendly_name");
 
                 String deviceId = cursor.getString(deviceIdIndex);
                 String deviceType = cursor.getString(deviceTypeIndex);
                 String deviceImg = cursor.getString(deviceImgIndex);
+                String deviceFriendlyName = cursor.getString(deviceFriendlyNameIndex);
+
                 Log.i("sql get all devices", "device id: " + deviceId +
-                        ", type: " + deviceType + ", img path: " + deviceImg);
+                        ", type: " + deviceType + ", img path: " + deviceImg + ", friendlyName: " + deviceFriendlyName);
                 Devices device = new Devices(deviceId, deviceType, deviceImg);
+                device.setFriendlyName(deviceFriendlyName);
                 devicesList.add(device);
             } while (cursor.moveToNext());
 

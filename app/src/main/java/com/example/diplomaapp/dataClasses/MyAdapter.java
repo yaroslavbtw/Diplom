@@ -34,7 +34,8 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
         }
 
         public void SetDetails(Devices device){
-            textNameCard.setText(device.getDeviceId());
+            if(!device.getFriendlyName().isEmpty())
+                textNameCard.setText(device.getFriendlyName() + "\n(" + device.getDeviceId() + ")");
             textDataCard.setText(device.getType());
             switchButton.setChecked(true);
         }

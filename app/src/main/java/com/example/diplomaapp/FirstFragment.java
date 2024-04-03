@@ -1,6 +1,7 @@
 package com.example.diplomaapp;
 
 import android.os.Bundle;
+import android.text.InputFilter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,8 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.example.diplomaapp.dataClasses.IPAddressFilter;
+import com.example.diplomaapp.dataClasses.PortInputFilter;
 import com.example.diplomaapp.databinding.FragmentFirstBinding;
 
 import java.util.Objects;
@@ -23,6 +26,15 @@ public class FirstFragment extends Fragment {
             Bundle savedInstanceState
     ) {
         binding = FragmentFirstBinding.inflate(inflater, container, false);
+
+//        InputFilter[] filters = new InputFilter[1];
+//        filters[0] = new IPAddressFilter();
+//        binding.editTextInputIP.setFilters(filters);
+
+        InputFilter[] filters = new InputFilter[1];
+        filters[0] = new PortInputFilter();
+        binding.editTextInputPort.setFilters(filters);
+
         return binding.getRoot();
     }
 
@@ -44,27 +56,46 @@ public class FirstFragment extends Fragment {
     public Bundle validateData(){
         Bundle bundle = new Bundle();
 
-        if(binding.editTextInputIP.getText().toString().isEmpty()) {
-            Toast.makeText(requireContext(), "Required IP Address", Toast.LENGTH_LONG).show();
+        if(binding.editTextInputIP.getText().toString().isEmpty() || Objects.requireNonNull(binding.editTextInputPort.getText()).toString().isEmpty()) {
+            Toast.makeText(requireContext(), "Required IP Address and port", Toast.LENGTH_LONG).show();
             return null;
         }
         else {
-            Boolean loginEmpty = binding.editTextInputLogin.getText().toString().isEmpty();
-            Boolean passwordEmpty = binding.editTextPassword.getText().toString().isEmpty();
-            if(loginEmpty && passwordEmpty) {
-                bundle.putString("address", binding.editTextInputIP.getText().toString());
-                return bundle;
+            String ipAddress = binding.editTextInputIP.getText().toString();
+            String port = binding.editTextInputPort.getText().toString();
+            if (isValidIPAddress(ipAddress) && isValidPort(port)) {
+                Boolean loginEmpty = binding.editTextInputLogin.getText().toString().isEmpty();
+                Boolean passwordEmpty = binding.editTextPassword.getText().toString().isEmpty();
+                if (loginEmpty && passwordEmpty) {
+                    bundle.putString("address", "tcp://" + ipAddress + ":" + port);
+                    return bundle;
+                } else if (!loginEmpty && !passwordEmpty) {
+                    bundle.putString("address", "tcp://" + ipAddress + ":" + port);
+                    bundle.putString("login", Objects.requireNonNull(binding.editTextInputLogin.getText()).toString());
+                    bundle.putString("password", binding.editTextPassword.getText().toString());
+                    return bundle;
+                } else {
+                    Toast.makeText(requireContext(), "Required full credentials or none", Toast.LENGTH_LONG).show();
+                    return null;
+                }
             }
-            else if(!loginEmpty && !passwordEmpty){
-                bundle.putString("address", binding.editTextInputIP.getText().toString());
-                bundle.putString("login", Objects.requireNonNull(binding.editTextInputLogin.getText()).toString());
-                bundle.putString("password", binding.editTextPassword.getText().toString());
-                return bundle;
-            } else {
-                Toast.makeText(requireContext(), "Required full credentials or none", Toast.LENGTH_LONG).show();
+            else{
+                Toast.makeText(requireContext(), "Incorrect ip address and port", Toast.LENGTH_LONG).show();
                 return null;
             }
         }
+    }
+
+    private boolean isValidIPAddress(String ipAddress) {
+        // Регулярное выражение для проверки IP-адреса
+        String ipRegex = "^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$";
+        return ipAddress.matches(ipRegex);
+    }
+
+    private boolean isValidPort(String port) {
+        // Регулярное выражение для проверки порта (число от 1 до 65535)
+        String portRegex = "^([1-9]|[1-9][0-9]{1,3}|[1-5][0-9]{4}|6[0-5]{2}[0-3][0-5])$";
+        return port.matches(portRegex);
     }
 
     @Override
