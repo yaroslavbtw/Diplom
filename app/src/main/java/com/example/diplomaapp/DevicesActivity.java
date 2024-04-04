@@ -55,10 +55,13 @@ public class DevicesActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
 
-        String systemName = intent.getStringExtra("systemName");
-        String mqttUrl = intent.getStringExtra("mqttUrl");
+        system = new System(intent.getStringExtra("systemName"), intent.getStringExtra("mqttUrl"));
 
-        system = new System(systemName, mqttUrl);
+        if (intent.hasExtra("mqtt_login") && intent.hasExtra("mqtt_password")) {
+            system.setMqtt_login(intent.getStringExtra("mqtt_login"));
+            system.setMqtt_password(intent.getStringExtra("mqtt_password"));
+            Log.i("MQTT", system.getMqtt_url() + system.getMqtt_login() + system.getMqtt_password());
+        }
 
         connectToMqtt();
 
@@ -114,13 +117,15 @@ public class DevicesActivity extends AppCompatActivity {
         if(connectivityManager != null) {
             for (Network net : connectivityManager.getAllNetworks()) {
                 NetworkCapabilities nc = connectivityManager.getNetworkCapabilities(net);
-                if (nc != null && nc.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
-                        && nc.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET))
+                if (nc != null && ((nc.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+                        || nc.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) // Добавляем проверку на мобильный интернет
+                        && nc.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)))
                     return true;
             }
         }
         return false;
     }
+
 
     private void connectToMqtt(){
         ProgressBar loadingSpinner = findViewById(R.id.progressBar);
@@ -135,9 +140,9 @@ public class DevicesActivity extends AppCompatActivity {
 
         if(isInternetConnection()) {
             try {
-
-            mqttHelper = new MqttHelper(getApplicationContext(), "tcp://192.168.1.108:1883",
-                    "Yaroslav", "26112002", new MqttConnectListener() {
+            Log.i("MQTT", system.getMqtt_url() + system.getMqtt_login() + system.getMqtt_password());
+            mqttHelper = new MqttHelper(getApplicationContext(), system.getMqtt_url(),
+                    system.getMqtt_login(), system.getMqtt_password(), new MqttConnectListener() {
                 @Override
                 public void onSuccess() {
 

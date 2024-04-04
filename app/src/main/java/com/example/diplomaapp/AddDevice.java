@@ -2,6 +2,9 @@ package com.example.diplomaapp;
 
 import static androidx.core.content.ContentProviderCompat.requireContext;
 
+import android.content.ContentResolver;
+import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -13,6 +16,7 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -29,9 +33,13 @@ import com.example.diplomaapp.dataClasses.System;
 import com.example.diplomaapp.databinding.ActivityAddDeviceBinding;
 import com.google.android.material.textfield.TextInputEditText;
 
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Objects;
+import java.util.UUID;
 
 public class AddDevice extends AppCompatActivity {
 
@@ -45,6 +53,7 @@ public class AddDevice extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_add_device);
+
         binding = ActivityAddDeviceBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
@@ -102,12 +111,16 @@ public class AddDevice extends AppCompatActivity {
     @Override
     protected void onActivityResult(int reqCode, int resultCode, Intent data) {
         super.onActivityResult(reqCode, resultCode, data);
-
         if (resultCode == RESULT_OK) {
             try {
                 final Uri imageUri = data.getData();
                 final InputStream imageStream = getContentResolver().openInputStream(imageUri);
                 final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
+
+                // Сохраняем изображение в файловой системе устройства
+                img = saveImageToInternalStorage(selectedImage, imageUri);
+                Log.i("sql", img);
+                // Загружаем изображение в ImageView
                 ImageView imgView = findViewById(R.id.imageViewDeviceAdd);
                 imgView.setImageBitmap(selectedImage);
             } catch (FileNotFoundException e) {
@@ -118,5 +131,71 @@ public class AddDevice extends AppCompatActivity {
         }else {
             Toast.makeText(this, "You haven't picked Image",Toast.LENGTH_LONG).show();
         }
+    }
+
+    private String saveImageToInternalStorage(Bitmap bitmapImage, Uri imageUri){
+        ContextWrapper cw = new ContextWrapper(getApplicationContext());
+        File directory = cw.getDir("imageDir", Context.MODE_PRIVATE);
+        String uniqueFileName = "profile_" + UUID.randomUUID().toString();
+
+        // Извлекаем расширение из URI
+        String extension = getExtensionFromUri(imageUri);
+        if (extension != null && !extension.isEmpty()) {
+            uniqueFileName += "." + extension;
+        } else {
+            // Если не удалось извлечь расширение, используем JPEG по умолчанию
+            uniqueFileName += ".jpg";
+        }
+
+        File mypath = new File(directory, uniqueFileName);
+
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(mypath);
+            // Сжимаем изображение в соответствии с расширением
+            if (extension != null && extension.equalsIgnoreCase("png")) {
+                bitmapImage.compress(Bitmap.CompressFormat.PNG, 100, fos);
+            } else {
+                bitmapImage.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (fos != null) {
+                    fos.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return directory.getAbsolutePath() + "/" + uniqueFileName;
+    }
+
+    private String getExtensionFromUri(Uri uri) {
+        ContentResolver contentResolver = getContentResolver();
+        MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
+        String extension;
+
+        if (contentResolver == null || uri == null) {
+            return null;
+        }
+
+        // Получаем MIME тип из URI
+        String mimeType = contentResolver.getType(uri);
+        if (mimeType == null) {
+            // Если MIME тип не определен, пытаемся извлечь расширение из URI
+            String uriString = uri.toString();
+            int extensionIndex = uriString.lastIndexOf('.');
+            if (extensionIndex != -1 && extensionIndex < uriString.length() - 1) {
+                extension = uriString.substring(extensionIndex + 1);
+                return extension.toLowerCase();
+            }
+            return null;
+        }
+
+        // Получаем расширение из MIME типа
+        extension = mimeTypeMap.getExtensionFromMimeType(mimeType);
+        return extension;
     }
 }

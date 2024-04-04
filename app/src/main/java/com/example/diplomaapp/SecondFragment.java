@@ -1,6 +1,7 @@
 package com.example.diplomaapp;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,17 +37,17 @@ public class SecondFragment extends Fragment {
             if(!nameEmpty) {
                 String sysName = binding.textEditSystemName.getText().toString();
                 Bundle args = getArguments();
-                String address = "";
-                String login = "";
-                String password = "";
 
                 if (args != null) {
+                    String address = "";
+                    String login = "";
+                    String password = "";
                     address = args.getString("address");
                     if (args.containsKey("login")) {
                         login = args.getString("login");
                     }
                     if (args.containsKey("password")) {
-                        login = args.getString("password");
+                        password = args.getString("password");
                     }
 
                     dbHelper = new DBHelper(requireContext());
@@ -58,6 +59,7 @@ public class SecondFragment extends Fragment {
                         mySys.setMqtt_password(password);
                     }
 
+                    Log.i("MQTT add system", address + " " + login + " " + password);
                     dbHelper.addSystem(mySys);
                     Toast.makeText(requireContext(), "Successfully added system!", Toast.LENGTH_LONG).show();
                     NavHostFragment.findNavController(SecondFragment.this)

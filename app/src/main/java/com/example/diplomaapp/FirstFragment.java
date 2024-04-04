@@ -2,6 +2,7 @@ package com.example.diplomaapp;
 
 import android.os.Bundle;
 import android.text.InputFilter;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -63,15 +64,15 @@ public class FirstFragment extends Fragment {
         else {
             String ipAddress = binding.editTextInputIP.getText().toString();
             String port = binding.editTextInputPort.getText().toString();
-            if (isValidIPAddress(ipAddress) && isValidPort(port)) {
-                Boolean loginEmpty = binding.editTextInputLogin.getText().toString().isEmpty();
-                Boolean passwordEmpty = binding.editTextPassword.getText().toString().isEmpty();
+            if (isValidPort(port)) {
+                Boolean loginEmpty = binding.editTextInputLogin.getText() == null;
+                Boolean passwordEmpty = binding.editTextPassword.getText() == null;
                 if (loginEmpty && passwordEmpty) {
                     bundle.putString("address", "tcp://" + ipAddress + ":" + port);
                     return bundle;
                 } else if (!loginEmpty && !passwordEmpty) {
                     bundle.putString("address", "tcp://" + ipAddress + ":" + port);
-                    bundle.putString("login", Objects.requireNonNull(binding.editTextInputLogin.getText()).toString());
+                    bundle.putString("login", binding.editTextInputLogin.getText().toString());
                     bundle.putString("password", binding.editTextPassword.getText().toString());
                     return bundle;
                 } else {
@@ -80,7 +81,7 @@ public class FirstFragment extends Fragment {
                 }
             }
             else{
-                Toast.makeText(requireContext(), "Incorrect ip address and port", Toast.LENGTH_LONG).show();
+                Toast.makeText(requireContext(), "Incorrect port", Toast.LENGTH_LONG).show();
                 return null;
             }
         }

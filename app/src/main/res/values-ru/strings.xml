@@ -3,7 +3,7 @@
     <string name="app_name">Умный Дом</string>
     <string name="app_title">Умный Дом</string>
     <string name="first_fragment_label">Настройка MQTT</string>
-    <string name="second_fragment_label">Настройка устройств</string>
+    <string name="second_fragment_label">Настройка системы</string>
     <string name="next">Далее</string>
     <string name="previous">Назад</string>
     <string name="add_system">Добавить систему</string>

@@ -77,13 +77,14 @@ public class MainActivity extends AppCompatActivity {
         listView.setOnItemClickListener((parent, view, position, id) -> {
             System selectedSystem = systems.get(position);
 
-            String systemName = selectedSystem.getSystemName();
-            String mqttUrl = selectedSystem.getMqtt_url();
-
             Intent intent = new Intent(".DevicesActivity");
-            intent.putExtra("systemName", systemName);
-            intent.putExtra("mqttUrl", mqttUrl);
-
+            intent.putExtra("systemName", selectedSystem.getSystemName());
+            intent.putExtra("mqttUrl", selectedSystem.getMqtt_url());
+            if(selectedSystem.getMqtt_login() != null && selectedSystem.getMqtt_password() != null){
+                intent.putExtra("mqtt_login", selectedSystem.getMqtt_login());
+                intent.putExtra("mqtt_password", selectedSystem.getMqtt_password());
+            }
+            Log.i("MQTT main", selectedSystem.getMqtt_url() + selectedSystem.getMqtt_login() + selectedSystem.getMqtt_password());
             startActivity(intent);
             setListItems();
         });

@@ -1,10 +1,13 @@
 package com.example.diplomaapp.dataClasses;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 
@@ -13,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.diplomaapp.R;
 
+import java.io.File;
 import java.util.ArrayList;
 
 public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
@@ -24,6 +28,8 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
         // each data item is just a string in this case
         public TextView textNameCard, textDataCard;
         public Switch switchButton;
+
+        public ImageView imageView;
         public View view;
 
         public ViewHolder(View v) {
@@ -31,6 +37,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
             textNameCard = v.findViewById(R.id.textNameCard);
             textDataCard = v.findViewById(R.id.textDataCard);
             switchButton = v.findViewById(R.id.switchBtn);
+            imageView = v.findViewById(R.id.imageView);
         }
 
         public void SetDetails(Devices device){
@@ -38,6 +45,19 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
                 textNameCard.setText(device.getFriendlyName() + "\n(" + device.getDeviceId() + ")");
             textDataCard.setText(device.getType());
             switchButton.setChecked(true);
+            if (device.getImgPath() != null){
+                if (!device.getImgPath().isEmpty()) {
+                    try {
+                        File file = new File(device.getImgPath());
+                        if (file.exists()) {
+                            Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+                            imageView.setImageBitmap(bitmap);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
         }
 
         public View getView() {

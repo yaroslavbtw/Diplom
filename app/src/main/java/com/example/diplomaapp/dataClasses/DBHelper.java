@@ -57,6 +57,11 @@ public class DBHelper extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put("system_name", system.getSystemName());
         values.put("mqtt_url", system.getMqtt_url());
+        if(system.getMqtt_login() != null && system.getMqtt_password() != null){
+            values.put("mqtt_login", system.getMqtt_login());
+            values.put("mqtt_password", system.getMqtt_password());
+            Log.i("MQTT addSystem DB", system.getMqtt_url() + " " + system.getMqtt_login() + " " + system.getMqtt_password());
+        }
         db.insert("systems", null, values);
         db.close();
     }
@@ -64,12 +69,15 @@ public class DBHelper extends SQLiteOpenHelper {
     public List<System> getAllSystems() {
         List<System> systems = new ArrayList<>();
         SQLiteDatabase db = getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT system_name, mqtt_url FROM systems", null);
+        Cursor cursor = db.rawQuery("SELECT system_name, mqtt_url, mqtt_login, mqtt_password FROM systems", null);
         if (cursor.moveToFirst()) {
             do {
                 String systemName = cursor.getString(0);
                 String mqtt_url = cursor.getString(1);
-                systems.add(new System(systemName, mqtt_url));
+                System sys = new System(systemName, mqtt_url);
+                sys.setMqtt_login(cursor.getString(2));
+                sys.setMqtt_password(cursor.getString(3));
+                systems.add(sys);
             } while (cursor.moveToNext());
         }
         cursor.close();

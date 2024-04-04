@@ -17,7 +17,6 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 public class MqttHelper {
     private MqttAndroidClient mqttAndroidClient;
-    
 
     public MqttHelper(Context appContext, String serverUri, final String username, final String password, MqttConnectListener connectListener) {
         String clientId = MqttClient.generateClientId();
@@ -41,8 +40,11 @@ public class MqttHelper {
         MqttConnectOptions mqttConnectOptions = new MqttConnectOptions();
         mqttConnectOptions.setAutomaticReconnect(true);
         mqttConnectOptions.setCleanSession(false);
-        mqttConnectOptions.setUserName(username);
-        mqttConnectOptions.setPassword(password.toCharArray());
+        if(username != null && password != null)
+        {
+            mqttConnectOptions.setUserName(username);
+            mqttConnectOptions.setPassword(password.toCharArray());
+        }
 
         try {
             mqttAndroidClient.connect(mqttConnectOptions, null, new IMqttActionListener() {
@@ -53,14 +55,13 @@ public class MqttHelper {
                         connectListener.onSuccess(); // Уведомляем об успешном подключении
                     }
 
-//                    subscribeToTopic("zigbee2mqtt/0x123456789/l1/state");
+                    subscribeToTopic("zigbee2mqtt/0x00124B00281A9824");
 //                    publishMessage("zigbee2mqtt/0x123456789/l1/state", "Off");
                 }
 
                 @Override
                 public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                    Log.i("MQTT", "Failed to CONNECT " + exception.toString());
-                    Toast.makeText(appContext.getApplicationContext(), "No mqtt connection", Toast.LENGTH_LONG).show();
+                    Toast.makeText(appContext.getApplicationContext(), "Failed to connect: " + exception.toString(), Toast.LENGTH_LONG).show();
                     if (connectListener != null) {
                         connectListener.onFailure(new Throwable()); // Уведомляем об успешном подключении
                     }
