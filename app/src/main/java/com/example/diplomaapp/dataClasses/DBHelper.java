@@ -30,6 +30,8 @@ public class DBHelper extends SQLiteOpenHelper {
                 "device_type TEXT NOT NULL, last_data TEXT, " +
                 "system_id INTEGER NOT NULL, " +
                 "img_path TEXT," +
+                "mqtt_prefix Text," +
+                "diode_channel Text," +
                 "FOREIGN KEY (system_id) REFERENCES systems(_id) ON DELETE CASCADE)");
     }
 
@@ -92,6 +94,7 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     public void addDevice(Devices device, System system){
+        Log.i("sql", device.getDiodeChannel());
         String id = getSystemId(system);
         SQLiteDatabase db = getWritableDatabase();
         String img = device.getImgPath();
@@ -100,10 +103,13 @@ public class DBHelper extends SQLiteOpenHelper {
         values.put("device_id", device.getDeviceId());
         values.put("device_type", device.getType());
         values.put("system_id", id);
+        values.put("mqtt_prefix", device.getMqttPrefix());
         if(!img.isEmpty())
             values.put("img_path", img);
         if(!friendlyName.isEmpty())
             values.put("friendly_name", friendlyName);
+        if(!device.getDiodeChannel().isEmpty())
+            values.put("diode_channel", device.getDiodeChannel());
         db.insert("devices", null, values);
         db.close();
     }
@@ -126,16 +132,28 @@ public class DBHelper extends SQLiteOpenHelper {
                 int deviceTypeIndex = cursor.getColumnIndex("device_type");
                 int deviceImgIndex = cursor.getColumnIndex("img_path");
                 int deviceFriendlyNameIndex = cursor.getColumnIndex("friendly_name");
+                int deviceLastDataIndex = cursor.getColumnIndex("last_data");
+                int deviceMqttPrefixIndex = cursor.getColumnIndex("mqtt_prefix");
+                int deviceDiodeChannelIndex = cursor.getColumnIndex("diode_channel");
 
                 String deviceId = cursor.getString(deviceIdIndex);
                 String deviceType = cursor.getString(deviceTypeIndex);
                 String deviceImg = cursor.getString(deviceImgIndex);
                 String deviceFriendlyName = cursor.getString(deviceFriendlyNameIndex);
+                String deviceLastData = cursor.getString(deviceLastDataIndex);
+                String deviceMqttPrefix = cursor.getString(deviceMqttPrefixIndex);
+                String deviceDiodeChannel = cursor.getString(deviceDiodeChannelIndex);
 
                 Log.i("sql get all devices", "device id: " + deviceId +
-                        ", type: " + deviceType + ", img path: " + deviceImg + ", friendlyName: " + deviceFriendlyName);
+                        ", type: " + deviceType + ", img path: " + deviceImg + ", friendlyName: " +
+                        deviceFriendlyName + ", friendlyName: " + deviceMqttPrefix +
+                        ", diode channel: " + deviceDiodeChannel);
+
                 Devices device = new Devices(deviceId, deviceType, deviceImg);
                 device.setFriendlyName(deviceFriendlyName);
+                device.setLastAcceptedData(deviceLastData);
+                device.setMqttPrefix(deviceMqttPrefix);
+                device.setDiodeChannel(deviceDiodeChannel);
                 devicesList.add(device);
             } while (cursor.moveToNext());
 
@@ -178,5 +196,14 @@ public class DBHelper extends SQLiteOpenHelper {
         db.close();
         return deviceId;
     }
+
+    public void updateLastDataForDevice(Devices device, String newData) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("last_data", newData);
+        db.update("devices", values, "device_id = ?", new String[]{device.getDeviceId()});
+        db.close();
+    }
+
 
 }

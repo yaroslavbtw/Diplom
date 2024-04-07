@@ -7,6 +7,8 @@ public class Devices {
     private String type;
     private String imgPath = "";
     private String lastAcceptedData = "";
+    private String MqttPrefix = "";
+    private String diodeChannel = "";
 
     public Devices(String deviceId, String type, String imgPath) {
         this.deviceId = deviceId;
@@ -52,5 +54,21 @@ public class Devices {
 
     public void setFriendlyName(String friendlyName) {
         this.friendlyName = friendlyName;
+    }
+
+    public String getMqttPrefix() {
+        return MqttPrefix;
+    }
+
+    public void setMqttPrefix(String mqttPrefix) {
+        MqttPrefix = mqttPrefix;
+    }
+
+    public String getDiodeChannel() {
+        return diodeChannel;
+    }
+
+    public void setDiodeChannel(String diodeChannel) {
+        this.diodeChannel = diodeChannel;
     }
 }

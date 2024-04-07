@@ -31,4 +31,6 @@
     <string name="port">Порт</string>
     <string name="system_name">Конфигурирование системы</string>
     <string name="system_name_hint">Название системы</string>
+    <string name="mqtt_prefix_hint">Mqtt префикс</string>
+    <string name="device_switch_channel">Канал диода или др. перекл. устр.</string>
 </resources>

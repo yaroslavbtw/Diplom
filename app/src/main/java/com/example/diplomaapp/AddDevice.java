@@ -1,19 +1,13 @@
 package com.example.diplomaapp;
 
-import static androidx.core.content.ContentProviderCompat.requireContext;
-
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.health.connect.datatypes.Device;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
-import android.text.Editable;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.webkit.MimeTypeMap;
@@ -31,7 +25,6 @@ import com.example.diplomaapp.dataClasses.DBHelper;
 import com.example.diplomaapp.dataClasses.Devices;
 import com.example.diplomaapp.dataClasses.System;
 import com.example.diplomaapp.databinding.ActivityAddDeviceBinding;
-import com.google.android.material.textfield.TextInputEditText;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -74,8 +67,10 @@ public class AddDevice extends AppCompatActivity {
                 boolean isFriendlyName =  Objects.requireNonNull(binding.textInputFriendlyName.getText()).toString().isEmpty();
                 boolean isDeviceIeeeid = Objects.requireNonNull(binding.textInputDeviceIeeeid.getText()).toString().isEmpty();
                 boolean isDeviceType = Objects.requireNonNull(binding.textInputDeviceType.getText()).toString().isEmpty();
+                boolean isMqttPrefix = Objects.requireNonNull(binding.textInputMqttPrefix.getText()).toString().isEmpty();
+                boolean isDiodeChannel = Objects.requireNonNull(binding.textInputDeviceSwitchChannel.getText()).toString().isEmpty();
 
-                if(!isFriendlyName && !isDeviceIeeeid && !isDeviceType)
+                if(!isFriendlyName && !isDeviceIeeeid && !isDeviceType && !isMqttPrefix)
                 {
                     dbHelper = new DBHelper(getApplicationContext());
 
@@ -89,10 +84,16 @@ public class AddDevice extends AppCompatActivity {
                     String friendlyName = binding.textInputFriendlyName.getText().toString();
                     String deviceIeeeid = binding.textInputDeviceIeeeid.getText().toString();
                     String deviceType = binding.textInputDeviceType.getText().toString();
+                    String deviceMqttPrefix = binding.textInputMqttPrefix.getText().toString();
 
                     Devices device = new Devices(deviceIeeeid, deviceType, img);
                     device.setFriendlyName(friendlyName);
-
+                    device.setMqttPrefix(deviceMqttPrefix);
+                    if(!isDiodeChannel)
+                    {
+                        String diodeChannel = binding.textInputDeviceSwitchChannel.getText().toString();
+                        device.setDiodeChannel(diodeChannel);
+                    }
                     dbHelper.addDevice(device, system);
                     dbHelper.close();
                     finish();
@@ -181,10 +182,8 @@ public class AddDevice extends AppCompatActivity {
             return null;
         }
 
-        // Получаем MIME тип из URI
         String mimeType = contentResolver.getType(uri);
         if (mimeType == null) {
-            // Если MIME тип не определен, пытаемся извлечь расширение из URI
             String uriString = uri.toString();
             int extensionIndex = uriString.lastIndexOf('.');
             if (extensionIndex != -1 && extensionIndex < uriString.length() - 1) {

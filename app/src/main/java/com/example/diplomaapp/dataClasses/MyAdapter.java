@@ -14,7 +14,12 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.diplomaapp.DevicesActivity;
 import com.example.diplomaapp.R;
+
+import org.eclipse.paho.android.service.MqttAndroidClient;
+import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -22,13 +27,11 @@ import java.util.ArrayList;
 public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
     private ArrayList<Devices> mDataset;
     private Context context;
-    public MqttHelper mqttHelper;
+    private MqttAndroidClient mqttAndroidClient;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        // each data item is just a string in this case
         public TextView textNameCard, textDataCard;
         public Switch switchButton;
-
         public ImageView imageView;
         public View view;
 
@@ -41,10 +44,45 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
         }
 
         public void SetDetails(Devices device){
-            if(!device.getFriendlyName().isEmpty())
+            if(device.getFriendlyName() != null)
                 textNameCard.setText(device.getFriendlyName() + "\n(" + device.getDeviceId() + ")");
-            textDataCard.setText(device.getType());
-            switchButton.setChecked(true);
+            else textDataCard.setText(device.getType());
+            if(device.getDiodeChannel() == null){
+                switchButton.setVisibility(View.INVISIBLE);
+            }
+            else {
+                if (device.getLastAcceptedData() != null) {
+
+                    String[] keyValuePairs = device.getLastAcceptedData().split("\n");
+                    StringBuilder newDataStringBuilder = new StringBuilder();
+                    for (String pair : keyValuePairs) {
+                        String[] keyValue = pair.split(":");
+                        if (keyValue.length == 2) {
+                            String key = keyValue[0].trim();
+
+                            if (!key.equals("state_" + device.getDiodeChannel())) {
+                                newDataStringBuilder.append(pair).append("\n");
+                            }
+                        }
+                    }
+
+                    textDataCard.setText(device.getType() + "\n\n" + newDataStringBuilder.toString());
+
+                    for (String pair : keyValuePairs) {
+                        String[] keyValue = pair.split(":");
+                        if (keyValue.length == 2) {
+                            String key = keyValue[0].trim();
+                            String value = keyValue[1].trim();
+
+                            if (key.equals("state_" + device.getDiodeChannel())) {
+                                switchButton.setChecked(!value.equals("OFF"));
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
             if (device.getImgPath() != null){
                 if (!device.getImgPath().isEmpty()) {
                     try {
@@ -66,10 +104,10 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
     }
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public MyAdapter(Context context, ArrayList<Devices> myDataset, MqttHelper mqttHelper) {
+    public MyAdapter(Context context, ArrayList<Devices> myDataset, MqttAndroidClient mqttAndroidClient) {
         this.mDataset = myDataset;
         this.context = context;
-        this.mqttHelper = mqttHelper;
+        this.mqttAndroidClient = mqttAndroidClient;
     }
 
     // Create new views (invoked by the layout manager)
@@ -81,17 +119,25 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
         return new ViewHolder(v);
     }
 
-    // Replace the contents of a view (invoked by the layout manager)
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Devices device = mDataset.get(position);
         holder.SetDetails(device);
 
         holder.switchButton.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            MqttMessage mqttMessage = new MqttMessage();
             if (isChecked) {
-                Log.i("button", "On " + holder.getAdapterPosition() + mqttHelper.isConnected());
+                mqttMessage.setPayload("On".getBytes());
+                Log.i("button", "On " + holder.getAdapterPosition());
             } else {
-                Log.i("button", "Off " + holder.getAdapterPosition() + mqttHelper.isConnected());
+                Log.i("button", "Off " + holder.getAdapterPosition());
+                mqttMessage.setPayload("Off".getBytes());
+            }
+            try {
+                Log.i("MQTT", device.getMqttPrefix());
+                mqttAndroidClient.publish(device.getMqttPrefix() + "/" + device.getDeviceId() + "/" + device.getDiodeChannel() + "/set", mqttMessage);
+            } catch (MqttException e) {
+                throw new RuntimeException(e);
             }
         });
     }

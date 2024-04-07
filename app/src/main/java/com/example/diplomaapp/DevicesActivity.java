@@ -2,6 +2,7 @@ package com.example.diplomaapp;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.Network;
@@ -15,6 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.graphics.Insets;
@@ -27,14 +29,24 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.diplomaapp.dataClasses.DBHelper;
 import com.example.diplomaapp.dataClasses.DeleteConfirmationDialog;
 import com.example.diplomaapp.dataClasses.Devices;
-import com.example.diplomaapp.dataClasses.MqttHelper;
 import com.example.diplomaapp.dataClasses.MyAdapter;
 import com.example.diplomaapp.dataClasses.System;
 import com.example.diplomaapp.databinding.ActivityDevicesBinding;
-import com.example.diplomaapp.listeners.MqttConnectListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import org.eclipse.paho.android.service.MqttAndroidClient;
+import org.eclipse.paho.client.mqttv3.IMqttActionListener;
+import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
+import org.eclipse.paho.client.mqttv3.IMqttToken;
+import org.eclipse.paho.client.mqttv3.MqttCallback;
+import org.eclipse.paho.client.mqttv3.MqttClient;
+import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class DevicesActivity extends AppCompatActivity {
 
@@ -42,17 +54,17 @@ public class DevicesActivity extends AppCompatActivity {
     private MyAdapter adapter;
     private ArrayList<Devices> devices;
     private ActivityDevicesBinding binding;
-    private MqttHelper mqttHelper;
     private SwipeToDeleteCallback callback;
     private System system;
     private DBHelper dbHelper;
+    private MqttAndroidClient mqttAndroidClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_devices);
-
+        dbHelper = new DBHelper(this);
         Intent intent = getIntent();
 
         system = new System(intent.getStringExtra("systemName"), intent.getStringExtra("mqttUrl"));
@@ -60,22 +72,11 @@ public class DevicesActivity extends AppCompatActivity {
         if (intent.hasExtra("mqtt_login") && intent.hasExtra("mqtt_password")) {
             system.setMqtt_login(intent.getStringExtra("mqtt_login"));
             system.setMqtt_password(intent.getStringExtra("mqtt_password"));
-            Log.i("MQTT", system.getMqtt_url() + system.getMqtt_login() + system.getMqtt_password());
         }
 
         connectToMqtt();
 
         setListeners();
-
-        ImageButton imageButton = findViewById(R.id.imageButton2);
-        imageButton.setBackground(null);
-        imageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                setDevicesList();
-                Toast.makeText(getApplicationContext(), "Refreshed", Toast.LENGTH_SHORT).show();
-            }
-        });
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.mainlayout), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -84,7 +85,7 @@ public class DevicesActivity extends AppCompatActivity {
         });
     }
 
-    private void initCardView(MqttHelper mqttHelper) {
+    private void initCardView() {
         setDevicesList();
         callback = new SwipeToDeleteCallback(this, position -> {
 
@@ -140,25 +141,70 @@ public class DevicesActivity extends AppCompatActivity {
 
         if(isInternetConnection()) {
             try {
-            Log.i("MQTT", system.getMqtt_url() + system.getMqtt_login() + system.getMqtt_password());
-            mqttHelper = new MqttHelper(getApplicationContext(), system.getMqtt_url(),
-                    system.getMqtt_login(), system.getMqtt_password(), new MqttConnectListener() {
-                @Override
-                public void onSuccess() {
+                String clientId = MqttClient.generateClientId();
+                mqttAndroidClient = new MqttAndroidClient(getApplicationContext(), system.getMqtt_url(), clientId);
 
-                    loadingSpinner.setVisibility(View.INVISIBLE);
-                    constraintLayout.setVisibility(View.VISIBLE);
-                    addDevice.setVisibility(View.VISIBLE);
+                mqttAndroidClient.setCallback(new MqttCallback() {
 
-                    Toast.makeText(getApplicationContext(), "Mqtt connection", Toast.LENGTH_LONG).show();
-                    initCardView(mqttHelper);
+                    @Override
+                    public void connectionLost(Throwable cause) {}
+
+                    @Override
+                    public void messageArrived(String topic, MqttMessage message) throws Exception {
+                        String[] parts = topic.split("/");
+                        String deviceId = parts[parts.length - 1];
+                        Devices dev = new Devices(deviceId, "smth", "");
+                        dbHelper.updateLastDataForDevice(dev, parseMqttMessage(message.toString()));
+                        setDevicesList();
+                        Log.i("MQTT", deviceId + " " + message.toString());
+                    }
+
+                    @Override
+                    public void deliveryComplete(IMqttDeliveryToken token) {
+
+                    }
+                });
+
+                MqttConnectOptions mqttConnectOptions = new MqttConnectOptions();
+                mqttConnectOptions.setAutomaticReconnect(true);
+                mqttConnectOptions.setCleanSession(false);
+
+                if(system.getMqtt_login() != null && system.getMqtt_password() != null)
+                {
+                    mqttConnectOptions.setUserName(system.getMqtt_login());
+                    mqttConnectOptions.setPassword(system.getMqtt_password().toCharArray());
                 }
 
-                @Override
-                public void onFailure(Throwable exception) {
-                    Toast.makeText(getApplicationContext(), "No mqtt connection", Toast.LENGTH_LONG).show();
+                try {
+                    mqttAndroidClient.connect(mqttConnectOptions, null, new IMqttActionListener() {
+                        @Override
+                        public void onSuccess(IMqttToken asyncActionToken) {
+                            loadingSpinner.setVisibility(View.INVISIBLE);
+                            constraintLayout.setVisibility(View.VISIBLE);
+                            addDevice.setVisibility(View.VISIBLE);
+
+                            Toast.makeText(getApplicationContext(), "Mqtt connection", Toast.LENGTH_LONG).show();
+                            initCardView();
+
+                            for (Devices device : devices) {
+                                String prefixMqtt = device.getMqttPrefix();
+                                String deviceId = device.getDeviceId();
+
+                                subscribeToTopic(prefixMqtt + "/" + deviceId);
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+                            Toast.makeText(getApplicationContext(), "Failed to connect: " + exception.toString(), Toast.LENGTH_LONG).show();
+
+                        }
+                    });
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    Log.i("MQTT", ex.toString());
                 }
-            });
+
             } catch (Exception e) {
                 Log.i("mqtt", e.getMessage());
             }
@@ -168,9 +214,37 @@ public class DevicesActivity extends AppCompatActivity {
     }
 
     public void setListeners(){
+        ImageButton refreshButton = findViewById(R.id.buttonRefreshDevices);
+        refreshButton.setBackground(null);
+
+        ImageButton deleteSystemButton = findViewById(R.id.buttonSystemDelete);
+        deleteSystemButton.setBackground(null);
+        refreshButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setDevicesList();
+                for (Devices device : devices) {
+                    String prefixMqtt = device.getMqttPrefix();
+                    String deviceId = device.getDeviceId();
+
+                    subscribeToTopic(prefixMqtt + "/" + deviceId);
+                }
+                Toast.makeText(getApplicationContext(), "Refreshed", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        deleteSystemButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.i("mqtt", "delete system");
+                dbHelper.deleteSystem(system);
+                finish();
+            }
+        });
+
         FloatingActionButton addDeviceButton = findViewById(R.id.addDevice);
         addDeviceButton.setOnClickListener(v -> {
-            Intent intent = new Intent(".AddDevice");
+            Intent intent = new Intent(".AddDevice").setClassName(getPackageName(), "com.example.diplomaapp.AddDevice");
             intent.putExtra("systemName", system.getSystemName());
             intent.putExtra("mqttUrl", system.getMqtt_url());
             startActivity(intent);
@@ -180,11 +254,71 @@ public class DevicesActivity extends AppCompatActivity {
     private void setDevicesList(){
         mRecyclerView = findViewById(R.id.recycler);
         mRecyclerView.setLayoutManager(new LinearLayoutManager((this)));
-
-        dbHelper = new DBHelper(this);
+//        dbHelper = new DBHelper(this);
         devices = dbHelper.getAllDevices(system);
-        adapter = new MyAdapter(this, devices, mqttHelper);
+        adapter = new MyAdapter(this, devices, mqttAndroidClient);
         mRecyclerView.setAdapter(adapter);
         updateDataForRecycler();
+    }
+
+    public void subscribeToTopic(String topic) {
+        try {
+            mqttAndroidClient.subscribe(topic, 0, null, new IMqttActionListener() {
+                @Override
+                public void onSuccess(IMqttToken asyncActionToken) {
+                    Log.i("MQTT", "CONNECTED TO TOPIC");
+                }
+
+                @Override
+                public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+                    Log.i("MQTT", "NOT CONNECTED TO TOPIC");
+                }
+            });
+        } catch (Exception ex) {
+            Log.i("MQTT", ex.toString());
+            ex.printStackTrace();
+        }
+    }
+
+    public void publishMessage(String topic, String message) {
+        try {
+            MqttMessage mqttMessage = new MqttMessage();
+            mqttMessage.setPayload(message.getBytes());
+            mqttAndroidClient.publish(topic, mqttMessage);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public String parseMqttMessage(String jsonMessage){
+        StringBuilder formattedMessage = new StringBuilder();
+        try {
+            JSONObject jsonObject = new JSONObject(jsonMessage);
+
+            // Получаем все ключи объекта
+            Iterator<String> keys = jsonObject.keys();
+
+
+            // Проходим по каждому ключу и добавляем его и соответствующее значение в форматированное сообщение
+            while (keys.hasNext()) {
+                String key = keys.next();
+                String value = jsonObject.getString(key);
+
+                formattedMessage.append(key).append(": ").append(value).append("\n");
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return formattedMessage.toString();
+    }
+
+    @Override
+    protected void onDestroy() {
+        try {
+            mqttAndroidClient.disconnect();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        super.onDestroy();
     }
 }
