@@ -12,14 +12,20 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
-import com.example.diplomaapp.dataClasses.IPAddressFilter;
-import com.example.diplomaapp.dataClasses.PortInputFilter;
+import com.example.diplomaapp.dataClasses.DBHelper;
+import com.example.diplomaapp.dataClasses.PortFilter;
+import com.example.diplomaapp.dataClasses.Storage;
+import com.example.diplomaapp.dataClasses.System;
 import com.example.diplomaapp.databinding.FragmentFirstBinding;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Objects;
 
 public class FirstFragment extends Fragment {
     private FragmentFirstBinding binding;
+
+    private static System system;
 
     @Override
     public View onCreateView(
@@ -33,14 +39,29 @@ public class FirstFragment extends Fragment {
 //        binding.editTextInputIP.setFilters(filters);
 
         InputFilter[] filters = new InputFilter[1];
-        filters[0] = new PortInputFilter();
+        filters[0] = new PortFilter();
         binding.editTextInputPort.setFilters(filters);
-
         return binding.getRoot();
     }
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        try {
+            if (Storage.system != null) {
+                try {
+                    URI uri = new URI(Storage.system.getMqtt_url());
+                    binding.editTextInputIP.setText(uri.getHost());
+                    binding.editTextInputPort.setText(String.valueOf(uri.getPort()));
+                } catch (URISyntaxException e) {
+                    e.printStackTrace();
+                }
+                binding.editTextInputLogin.setText(Storage.system.getMqtt_login());
+                binding.editTextPassword.setText(Storage.system.getMqtt_password());
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
         binding.buttonFirst.setOnClickListener(v ->{
                 Bundle bndl = validateData();
                 if(bndl != null)

@@ -4,12 +4,7 @@ import static androidx.core.content.ContentProviderCompat.requireContext;
 
 import android.os.Bundle;
 
-import com.google.android.material.snackbar.Snackbar;
-
 import androidx.appcompat.app.AppCompatActivity;
-
-import android.view.View;
-import android.widget.Toast;
 
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -28,13 +23,14 @@ public class SecondActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         binding = ActivitySecondBinding.inflate(getLayoutInflater());
+
         setContentView(binding.getRoot());
-
         setSupportActionBar(binding.toolbar);
-
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_second);
         appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
+
+
     }
 
     @Override

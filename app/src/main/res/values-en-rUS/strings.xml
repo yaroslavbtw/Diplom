@@ -33,4 +33,5 @@
     <string name="system_name_hint">System name</string>
     <string name="mqtt_prefix_hint">Mqtt prefix</string>
     <string name="device_switch_channel">Diode channel or smth that can switch</string>
+    <string name="no_devices_in_system">No devices</string>
 </resources>

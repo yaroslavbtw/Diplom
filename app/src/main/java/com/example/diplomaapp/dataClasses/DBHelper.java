@@ -68,6 +68,20 @@ public class DBHelper extends SQLiteOpenHelper {
         db.close();
     }
 
+    public void updateSystem(System newSystem, System oldSystem) {
+        String id = getSystemId(oldSystem);
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("mqtt_url", newSystem.getMqtt_url());
+        values.put("system_name", newSystem.getSystemName());
+        if (newSystem.getMqtt_login() != null && newSystem.getMqtt_password() != null) {
+            values.put("mqtt_login", newSystem.getMqtt_login());
+            values.put("mqtt_password", newSystem.getMqtt_password());
+        }
+        db.update("systems", values, "_id = ?", new String[]{id});
+        db.close();
+    }
+
     public List<System> getAllSystems() {
         List<System> systems = new ArrayList<>();
         SQLiteDatabase db = getReadableDatabase();
@@ -85,6 +99,21 @@ public class DBHelper extends SQLiteOpenHelper {
         cursor.close();
         db.close();
         return systems;
+    }
+
+    public System getSystem(String systemName) {
+        SQLiteDatabase db = getReadableDatabase();
+        System system = null;
+        Cursor cursor = db.rawQuery("SELECT mqtt_url, mqtt_login, mqtt_password FROM systems WHERE system_name = ?", new String[]{systemName});
+        if (cursor.moveToFirst()) {
+            String mqtt_url = cursor.getString(0);
+            system = new System(systemName, mqtt_url);
+            system.setMqtt_login(cursor.getString(1));
+            system.setMqtt_password(cursor.getString(2));
+        }
+        cursor.close();
+        db.close();
+        return system;
     }
 
     public void deleteAllSystems() {
@@ -166,13 +195,8 @@ public class DBHelper extends SQLiteOpenHelper {
     public void deleteSystem(System system) {
         String sysId = getSystemId(system);
         SQLiteDatabase db = getWritableDatabase();
-
-        // Удаление всех устройств, принадлежащих данной системе
         db.delete("devices", "system_id = ?", new String[]{sysId});
-
-        // Удаление самой системы
         db.delete("systems", "_id = ?", new String[]{sysId});
-
         db.close();
     }
 
@@ -195,6 +219,70 @@ public class DBHelper extends SQLiteOpenHelper {
         cursor.close();
         db.close();
         return deviceId;
+    }
+
+    public int getIdByDeviceId(String deviceId) {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT _id FROM devices WHERE device_id = ?", new String[]{deviceId});
+        String id = "";
+        if (cursor.moveToFirst()) {
+            id = cursor.getString(0);
+        }
+        cursor.close();
+        db.close();
+        return Integer.parseInt(id);
+    }
+
+    public Devices getDeviceByDeviceId(String deviceId) {
+        SQLiteDatabase db = getReadableDatabase();
+        Devices device = null;
+        Cursor cursor = db.rawQuery("SELECT * FROM devices WHERE device_id = ?", new String[]{deviceId});
+        if (cursor.moveToFirst()) {
+            // Получение данных о устройстве из курсора
+            int deviceTypeIndex = cursor.getColumnIndex("device_type");
+            int deviceImgIndex = cursor.getColumnIndex("img_path");
+            int deviceFriendlyNameIndex = cursor.getColumnIndex("friendly_name");
+            int deviceLastDataIndex = cursor.getColumnIndex("last_data");
+            int deviceMqttPrefixIndex = cursor.getColumnIndex("mqtt_prefix");
+            int deviceDiodeChannelIndex = cursor.getColumnIndex("diode_channel");
+
+            String deviceType = cursor.getString(deviceTypeIndex);
+            String deviceImg = cursor.getString(deviceImgIndex);
+            String deviceFriendlyName = cursor.getString(deviceFriendlyNameIndex);
+            String deviceLastData = cursor.getString(deviceLastDataIndex);
+            String deviceMqttPrefix = cursor.getString(deviceMqttPrefixIndex);
+            String deviceDiodeChannel = cursor.getString(deviceDiodeChannelIndex);
+
+            // Создание объекта устройства и инициализация его полей
+            device = new Devices(deviceId, deviceType, deviceImg);
+            device.setFriendlyName(deviceFriendlyName);
+            device.setLastAcceptedData(deviceLastData);
+            device.setMqttPrefix(deviceMqttPrefix);
+            device.setDiodeChannel(deviceDiodeChannel);
+        }
+        cursor.close();
+        db.close();
+        return device;
+    }
+
+
+    public void updateDevice(Devices device, Devices oldDevice) {
+        String id = getDeviceId(oldDevice);
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("device_type", device.getType());
+        values.put("img_path", device.getImgPath());
+        values.put("friendly_name", device.getFriendlyName());
+        values.put("mqtt_prefix", device.getMqttPrefix());
+        values.put("diode_channel", device.getDiodeChannel());
+        if(!device.getImgPath().isEmpty())
+            values.put("img_path", device.getImgPath());
+        if(!device.getFriendlyName().isEmpty())
+            values.put("friendly_name", device.getFriendlyName());
+        if(!device.getDiodeChannel().isEmpty())
+            values.put("diode_channel", device.getDiodeChannel());
+        db.update("devices", values, "_id = ?", new String[]{id});
+        db.close();
     }
 
     public void updateLastDataForDevice(Devices device, String newData) {

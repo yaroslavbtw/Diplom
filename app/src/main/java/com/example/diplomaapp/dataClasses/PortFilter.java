@@ -2,7 +2,7 @@ package com.example.diplomaapp.dataClasses;
 
 import android.text.InputFilter;
 
-public class PortInputFilter implements InputFilter {
+public class PortFilter implements InputFilter {
     @Override
     public CharSequence filter(CharSequence source, int start, int end,
                                android.text.Spanned dest, int dstart, int dend) {

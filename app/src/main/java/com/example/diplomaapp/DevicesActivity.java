@@ -2,7 +2,6 @@ package com.example.diplomaapp;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.Network;
@@ -16,7 +15,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.graphics.Insets;
@@ -29,7 +27,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.diplomaapp.dataClasses.DBHelper;
 import com.example.diplomaapp.dataClasses.DeleteConfirmationDialog;
 import com.example.diplomaapp.dataClasses.Devices;
-import com.example.diplomaapp.dataClasses.MyAdapter;
+import com.example.diplomaapp.dataClasses.DeviceAdapter;
+import com.example.diplomaapp.dataClasses.NotificationHelper;
+import com.example.diplomaapp.dataClasses.Storage;
+import com.example.diplomaapp.dataClasses.SwipeToDeleteCallback;
 import com.example.diplomaapp.dataClasses.System;
 import com.example.diplomaapp.databinding.ActivityDevicesBinding;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -48,13 +49,11 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class DevicesActivity extends AppCompatActivity {
+public class DevicesActivity extends AppCompatActivity implements SwipeToDeleteCallback.OnSwipeLeftListener, SwipeToDeleteCallback.OnSwipeRightListener{
 
     private RecyclerView mRecyclerView;
-    private MyAdapter adapter;
+    private DeviceAdapter adapter;
     private ArrayList<Devices> devices;
-    private ActivityDevicesBinding binding;
-    private SwipeToDeleteCallback callback;
     private System system;
     private DBHelper dbHelper;
     private MqttAndroidClient mqttAndroidClient;
@@ -87,17 +86,7 @@ public class DevicesActivity extends AppCompatActivity {
 
     private void initCardView() {
         setDevicesList();
-        callback = new SwipeToDeleteCallback(this, position -> {
-
-            DeleteConfirmationDialog.show(this, "Are you sure you want to remove this item?", () -> {
-                Devices dev = devices.get(position);
-                dbHelper.deleteDevice(dev);
-                devices.remove(position);
-                adapter.notifyDataSetChanged();
-            }, () -> {
-                adapter.notifyDataSetChanged();
-            });
-        });
+        SwipeToDeleteCallback callback = new SwipeToDeleteCallback(this, this, this);
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
         itemTouchHelper.attachToRecyclerView(mRecyclerView);
     }
@@ -154,9 +143,11 @@ public class DevicesActivity extends AppCompatActivity {
                         String[] parts = topic.split("/");
                         String deviceId = parts[parts.length - 1];
                         Devices dev = new Devices(deviceId, "smth", "");
-                        dbHelper.updateLastDataForDevice(dev, parseMqttMessage(message.toString()));
+                        String data = parseMqttMessage(message.toString());
+                        dbHelper.updateLastDataForDevice(dev, data);
+                        Devices dv = dbHelper.getDeviceByDeviceId(deviceId);
                         setDevicesList();
-                        Log.i("MQTT", deviceId + " " + message.toString());
+                        NotificationHelper.showNotification(getApplicationContext(), dv.getFriendlyName() + " (" + dv.getDeviceId() + ")", data, dbHelper.getIdByDeviceId(deviceId));
                     }
 
                     @Override
@@ -196,7 +187,7 @@ public class DevicesActivity extends AppCompatActivity {
 
                         @Override
                         public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                            Toast.makeText(getApplicationContext(), "Failed to connect: " + exception.toString(), Toast.LENGTH_LONG).show();
+                            Toast.makeText(getApplicationContext(), "Failed to connect", Toast.LENGTH_LONG).show();
 
                         }
                     });
@@ -216,9 +207,6 @@ public class DevicesActivity extends AppCompatActivity {
     public void setListeners(){
         ImageButton refreshButton = findViewById(R.id.buttonRefreshDevices);
         refreshButton.setBackground(null);
-
-        ImageButton deleteSystemButton = findViewById(R.id.buttonSystemDelete);
-        deleteSystemButton.setBackground(null);
         refreshButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -230,15 +218,6 @@ public class DevicesActivity extends AppCompatActivity {
                     subscribeToTopic(prefixMqtt + "/" + deviceId);
                 }
                 Toast.makeText(getApplicationContext(), "Refreshed", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        deleteSystemButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.i("mqtt", "delete system");
-                dbHelper.deleteSystem(system);
-                finish();
             }
         });
 
@@ -254,9 +233,8 @@ public class DevicesActivity extends AppCompatActivity {
     private void setDevicesList(){
         mRecyclerView = findViewById(R.id.recycler);
         mRecyclerView.setLayoutManager(new LinearLayoutManager((this)));
-//        dbHelper = new DBHelper(this);
         devices = dbHelper.getAllDevices(system);
-        adapter = new MyAdapter(this, devices, mqttAndroidClient);
+        adapter = new DeviceAdapter(this, devices, mqttAndroidClient);
         mRecyclerView.setAdapter(adapter);
         updateDataForRecycler();
     }
@@ -321,4 +299,27 @@ public class DevicesActivity extends AppCompatActivity {
         }
         super.onDestroy();
     }
+
+    @Override
+    public void onSwipeLeft(int position) {
+        DeleteConfirmationDialog.show(this, "Are you sure you want to remove this item?", () -> {
+            Devices dev = devices.get(position);
+            dbHelper.deleteDevice(dev);
+            devices.remove(position);
+            setDevicesList();
+            Toast.makeText(getApplicationContext(), "System deleted", Toast.LENGTH_SHORT).show();
+        }, () -> {
+            setDevicesList();
+            Toast.makeText(getApplicationContext(), "Canceled", Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    @Override
+    public void onSwipeRight(int position) {
+        Intent intent = new Intent(getApplicationContext(), AddDevice.class);
+        Storage.device = devices.get(position);
+        startActivity(intent);
+        setDevicesList();
+    }
+
 }

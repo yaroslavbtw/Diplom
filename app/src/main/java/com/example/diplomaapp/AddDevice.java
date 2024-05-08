@@ -23,6 +23,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.diplomaapp.dataClasses.DBHelper;
 import com.example.diplomaapp.dataClasses.Devices;
+import com.example.diplomaapp.dataClasses.Storage;
 import com.example.diplomaapp.dataClasses.System;
 import com.example.diplomaapp.databinding.ActivityAddDeviceBinding;
 
@@ -49,6 +50,30 @@ public class AddDevice extends AppCompatActivity {
 
         binding = ActivityAddDeviceBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        if(Storage.device != null)
+        {
+            binding.textInputFriendlyName.setText(Storage.device.getFriendlyName());
+            binding.textInputMqttPrefix.setText(Storage.device.getMqttPrefix());
+            binding.textInputDeviceIeeeid.setText(Storage.device.getDeviceId());
+            binding.textInputDeviceType.setText(Storage.device.getType());
+            if(!Objects.equals(Storage.device.getDiodeChannel(), ""))
+                binding.textInputDeviceSwitchChannel.setText(Storage.device.getDiodeChannel());
+            if (Storage.device.getImgPath() != null){
+                if (!Storage.device.getImgPath().isEmpty()) {
+                    try {
+                        File file = new File(Storage.device.getImgPath());
+                        if (file.exists()) {
+                            Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+                            ImageView imgView = findViewById(R.id.imageViewDeviceAdd);
+                            imgView.setImageBitmap(bitmap);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
 
         Button buttonUpload = findViewById(R.id.buttonChangeImg);
         Button buttonSaveDevice = findViewById(R.id.buttonSaveDevice);
@@ -85,8 +110,14 @@ public class AddDevice extends AppCompatActivity {
                     String deviceIeeeid = binding.textInputDeviceIeeeid.getText().toString();
                     String deviceType = binding.textInputDeviceType.getText().toString();
                     String deviceMqttPrefix = binding.textInputMqttPrefix.getText().toString();
+                    Devices device;
 
-                    Devices device = new Devices(deviceIeeeid, deviceType, img);
+                    if(Storage.device != null)
+                        if(!Objects.equals(img, ""))
+                            device = new Devices(deviceIeeeid, deviceType, img);
+                        else device = new Devices(deviceIeeeid, deviceType, Storage.device.getImgPath());
+                    else device = new Devices(deviceIeeeid, deviceType, img);
+
                     device.setFriendlyName(friendlyName);
                     device.setMqttPrefix(deviceMqttPrefix);
                     if(!isDiodeChannel)
@@ -94,11 +125,17 @@ public class AddDevice extends AppCompatActivity {
                         String diodeChannel = binding.textInputDeviceSwitchChannel.getText().toString();
                         device.setDiodeChannel(diodeChannel);
                     }
-                    dbHelper.addDevice(device, system);
+                    if(Storage.device != null){
+                        dbHelper.updateDevice(device, Storage.device);
+                        Toast.makeText(getApplicationContext(), "Successfully updated device!", Toast.LENGTH_LONG).show();
+                    }else{
+                        dbHelper.addDevice(device, system);
+                        Toast.makeText(getApplicationContext(), "Successfully added device!", Toast.LENGTH_LONG).show();
+                    }
                     dbHelper.close();
                     finish();
                 }
-                else Toast.makeText(getApplicationContext(), "All fields should be filled", Toast.LENGTH_LONG).show();;
+                else Toast.makeText(getApplicationContext(), "All fields should be filled", Toast.LENGTH_LONG).show();
             }
         });
 
@@ -120,7 +157,7 @@ public class AddDevice extends AppCompatActivity {
 
                 // Сохраняем изображение в файловой системе устройства
                 img = saveImageToInternalStorage(selectedImage, imageUri);
-                Log.i("sql", img);
+                Log.i("sql img", img);
                 // Загружаем изображение в ImageView
                 ImageView imgView = findViewById(R.id.imageViewDeviceAdd);
                 imgView.setImageBitmap(selectedImage);
@@ -197,4 +234,12 @@ public class AddDevice extends AppCompatActivity {
         extension = mimeTypeMap.getExtensionFromMimeType(mimeType);
         return extension;
     }
+
+    @Override
+    protected void onDestroy() {
+        Storage.device = null;
+        binding = null;
+        super.onDestroy();
+    }
+
 }

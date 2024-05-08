@@ -20,8 +20,8 @@
         android:textSize="24sp"
         android:textStyle="italic"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/ListOfSystems"
-        app:layout_constraintStart_toStartOf="@+id/ListOfSystems"
+        app:layout_constraintEnd_toEndOf="@+id/recyclerSystem"
+        app:layout_constraintStart_toStartOf="@+id/recyclerSystem"
         app:layout_constraintTop_toBottomOf="@+id/toolbar" />
 
     <androidx.appcompat.widget.Toolbar
@@ -40,17 +40,27 @@
         app:title="@string/systems_list"
         app:titleTextColor="#FFFFFF" />
 
-    <ListView
-        android:id="@+id/ListOfSystems"
+    <ImageButton
+        android:id="@+id/buttonRefreshSystems"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginEnd="4dp"
+        android:clickable="true"
+        app:layout_constraintBottom_toBottomOf="@+id/toolbar"
+        app:layout_constraintEnd_toEndOf="@+id/toolbar"
+        app:layout_constraintTop_toTopOf="@+id/toolbar"
+        app:srcCompat="@drawable/icons8_refresh_30" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerSystem"
         android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:dividerHeight="2dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintTop_toBottomOf="@+id/toolbar">
+    </androidx.recyclerview.widget.RecyclerView>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/addSystem"

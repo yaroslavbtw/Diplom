@@ -14,7 +14,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.diplomaapp.DevicesActivity;
 import com.example.diplomaapp.R;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
@@ -24,7 +23,7 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import java.io.File;
 import java.util.ArrayList;
 
-public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
+public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder> {
     private ArrayList<Devices> mDataset;
     private Context context;
     private MqttAndroidClient mqttAndroidClient;
@@ -44,9 +43,18 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
         }
 
         public void SetDetails(Devices device){
+            setFriendlyName(device);
+            setDiodeChannelAndLastData(device);
+            setImage(device);
+        }
+
+        public void setFriendlyName(Devices device){
             if(device.getFriendlyName() != null)
                 textNameCard.setText(device.getFriendlyName() + "\n(" + device.getDeviceId() + ")");
             else textDataCard.setText(device.getType());
+        }
+
+        public void setDiodeChannelAndLastData(Devices device){
             if(device.getDiodeChannel() == null){
                 switchButton.setVisibility(View.INVISIBLE);
             }
@@ -65,6 +73,8 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
                             }
                         }
                     }
+                    int ind = newDataStringBuilder.lastIndexOf("\n");
+                    newDataStringBuilder.delete(ind, newDataStringBuilder.length());
 
                     textDataCard.setText(device.getType() + "\n\n" + newDataStringBuilder.toString());
 
@@ -80,9 +90,13 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
                             }
                         }
                     }
+                }else{
+                    textDataCard.setText(device.getType());
                 }
             }
+        }
 
+        public void setImage(Devices device){
             if (device.getImgPath() != null){
                 if (!device.getImgPath().isEmpty()) {
                     try {
@@ -97,14 +111,13 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
                 }
             }
         }
-
         public View getView() {
             return view;
         }
     }
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public MyAdapter(Context context, ArrayList<Devices> myDataset, MqttAndroidClient mqttAndroidClient) {
+    public DeviceAdapter(Context context, ArrayList<Devices> myDataset, MqttAndroidClient mqttAndroidClient) {
         this.mDataset = myDataset;
         this.context = context;
         this.mqttAndroidClient = mqttAndroidClient;
@@ -113,8 +126,8 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
     // Create new views (invoked by the layout manager)
     @NonNull
     @Override
-    public MyAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
-                                                   int viewType) {
+    public DeviceAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
+                                                       int viewType) {
         View v = LayoutInflater.from(context).inflate(R.layout.item_card, parent, false);
         return new ViewHolder(v);
     }
