@@ -258,6 +258,15 @@ public class DevicesActivity extends AppCompatActivity implements SwipeToDeleteC
         }
     }
 
+    public void unSubscribeToTopic(String topic) {
+        try {
+            mqttAndroidClient.unsubscribe(topic);
+        } catch (Exception ex) {
+            Log.i("MQTT", ex.toString());
+            ex.printStackTrace();
+        }
+    }
+
     public void publishMessage(String topic, String message) {
         try {
             MqttMessage mqttMessage = new MqttMessage();
@@ -319,7 +328,21 @@ public class DevicesActivity extends AppCompatActivity implements SwipeToDeleteC
         Intent intent = new Intent(getApplicationContext(), AddDevice.class);
         Storage.device = devices.get(position);
         startActivity(intent);
+
+        for (Devices device : devices) {
+            String prefixMqtt = device.getMqttPrefix();
+            String deviceId = device.getDeviceId();
+
+            unSubscribeToTopic(prefixMqtt + "/" + deviceId);
+        }
         setDevicesList();
+
+        for (Devices device : devices) {
+            String prefixMqtt = device.getMqttPrefix();
+            String deviceId = device.getDeviceId();
+
+            subscribeToTopic(prefixMqtt + "/" + deviceId);
+        }
     }
 
 }

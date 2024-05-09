@@ -9,6 +9,7 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class DBHelper extends SQLiteOpenHelper {
 
@@ -22,7 +23,7 @@ public class DBHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE IF NOT EXISTS systems " +
-                "(_id INTEGER PRIMARY KEY AUTOINCREMENT, system_name TEXT NOT NULL, " +
+                "(_id INTEGER PRIMARY KEY AUTOINCREMENT, system_name TEXT NOT NULL UNIQUE, " +
                 "mqtt_url TEXT NOT NULL, mqtt_login TEXT, mqtt_password TEXT)");
         db.execSQL("CREATE TABLE IF NOT EXISTS devices " +
                 "(_id INTEGER PRIMARY KEY AUTOINCREMENT, friendly_name TEXT, " +
@@ -52,6 +53,30 @@ public class DBHelper extends SQLiteOpenHelper {
         cursor.close();
         db.close();
         return systemId;
+    }
+
+    public boolean isSystemExists(String sysName) {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT COUNT(*) FROM systems WHERE system_name = ?", new String[]{sysName});
+        int count = 0;
+        if (cursor.moveToFirst()) {
+            count = cursor.getInt(0);
+        }
+        cursor.close();
+        db.close();
+        return count > 0;
+    }
+
+    public boolean isDeviceExists(String deviceId) {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT COUNT(*) FROM devices WHERE device_id = ?", new String[]{deviceId});
+        int count = 0;
+        if (cursor.moveToFirst()) {
+            count = cursor.getInt(0);
+        }
+        cursor.close();
+        db.close();
+        return count > 0;
     }
 
     public void addSystem(System system) {
@@ -275,7 +300,7 @@ public class DBHelper extends SQLiteOpenHelper {
         values.put("friendly_name", device.getFriendlyName());
         values.put("mqtt_prefix", device.getMqttPrefix());
         values.put("diode_channel", device.getDiodeChannel());
-        if(!device.getImgPath().isEmpty())
+        if(!Objects.equals(device.getImgPath(), ""))
             values.put("img_path", device.getImgPath());
         if(!device.getFriendlyName().isEmpty())
             values.put("friendly_name", device.getFriendlyName());

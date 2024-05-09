@@ -69,9 +69,11 @@ public class FirstFragment extends Fragment {
                             .navigate(R.id.action_FirstFragment_to_SecondFragment, bndl);
         }
         );
-        binding.buttonSecond.setOnClickListener(v ->
+        binding.buttonSecond.setOnClickListener(v ->{
+                Storage.system = null;
                 NavHostFragment.findNavController(FirstFragment.this)
-                        .navigate(R.id.action_FirstFragment_to_mainActivity)
+                        .navigate(R.id.action_FirstFragment_to_mainActivity);
+        }
         );
     }
 

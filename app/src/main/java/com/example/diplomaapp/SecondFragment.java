@@ -18,6 +18,7 @@ import com.example.diplomaapp.databinding.FragmentSecondBinding;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Objects;
 
 public class SecondFragment extends Fragment {
 
@@ -47,45 +48,54 @@ public class SecondFragment extends Fragment {
         binding.buttonSave.setOnClickListener(v -> {
             Boolean nameEmpty = binding.textEditSystemName.getText().toString().isEmpty();
             if(!nameEmpty) {
-                String sysName = binding.textEditSystemName.getText().toString();
-                Bundle args = getArguments();
-
-                if (args != null) {
-                    String address = "";
-                    String login = "";
-                    String password = "";
-                    address = args.getString("address");
-                    if (args.containsKey("login")) {
-                        login = args.getString("login");
-                    }
-                    if (args.containsKey("password")) {
-                        password = args.getString("password");
-                    }
-
-                    dbHelper = new DBHelper(requireContext());
-                    System mySys = new System(sysName, address);
-
-                    if(!login.isEmpty() && !password.isEmpty())
-                    {
-                        mySys.setMqtt_login(login);
-                        mySys.setMqtt_password(password);
-                    }
-
-                    Log.i("MQTT add system", address + " " + login + " " + password);
-
-                    if(Storage.system != null){
-                        dbHelper.updateSystem(mySys, Storage.system);
-                        Toast.makeText(requireContext(), "Successfully updated system!", Toast.LENGTH_LONG).show();
-                    }else{
-                        dbHelper.addSystem(mySys);
-                        Toast.makeText(requireContext(), "Successfully added system!", Toast.LENGTH_LONG).show();
-                    }
-                    NavHostFragment.findNavController(SecondFragment.this)
-                            .navigate(R.id.action_SecondFragment_to_mainActivity);
-                }
+                dbHelper = new DBHelper(requireContext());
+                if(Storage.system == null || !Objects.equals(Storage.system.getSystemName(), binding.textEditSystemName.getText().toString())){
+                    Log.i("sql", String.valueOf(dbHelper.isSystemExists(binding.textEditSystemName.getText().toString())));
+                    if(dbHelper.isSystemExists(binding.textEditSystemName.getText().toString()))
+                        Toast.makeText(requireContext(), "This system name is already exists", Toast.LENGTH_LONG).show();
+                    else saveSystem();
+                }else saveSystem();
             }else Toast.makeText(requireContext(), "System name field should be filled", Toast.LENGTH_LONG).show();
         });
 
+    }
+
+    private void saveSystem(){
+        String sysName = binding.textEditSystemName.getText().toString();
+        Bundle args = getArguments();
+
+        if (args != null) {
+            String address = "";
+            String login = "";
+            String password = "";
+            address = args.getString("address");
+            if (args.containsKey("login")) {
+                login = args.getString("login");
+            }
+            if (args.containsKey("password")) {
+                password = args.getString("password");
+            }
+
+            System mySys = new System(sysName, address);
+
+            if(!login.isEmpty() && !password.isEmpty())
+            {
+                mySys.setMqtt_login(login);
+                mySys.setMqtt_password(password);
+            }
+
+            Log.i("MQTT add system", address + " " + login + " " + password);
+
+            if(Storage.system != null){
+                dbHelper.updateSystem(mySys, Storage.system);
+                Toast.makeText(requireContext(), "Successfully updated system!", Toast.LENGTH_LONG).show();
+            }else{
+                dbHelper.addSystem(mySys);
+                Toast.makeText(requireContext(), "Successfully added system!", Toast.LENGTH_LONG).show();
+            }
+            NavHostFragment.findNavController(SecondFragment.this)
+                    .navigate(R.id.action_SecondFragment_to_mainActivity);
+        }
     }
 
     @Override

@@ -49,6 +49,7 @@ public class MainActivity extends AppCompatActivity implements SwipeToDeleteCall
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
+        Storage.device = null;
         dbHelper = new DBHelper(this);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -86,6 +87,7 @@ public class MainActivity extends AppCompatActivity implements SwipeToDeleteCall
 
         FloatingActionButton addSystemButton = findViewById(R.id.addSystem);
         addSystemButton.setOnClickListener(v -> {
+            Storage.device = null;
             Intent intent = new Intent(".SecondActivity");
             startActivity(intent);
             setListItems();

@@ -98,42 +98,14 @@ public class AddDevice extends AppCompatActivity {
                 if(!isFriendlyName && !isDeviceIeeeid && !isDeviceType && !isMqttPrefix)
                 {
                     dbHelper = new DBHelper(getApplicationContext());
-
-                    Intent intent = getIntent();
-
-                    String systemName = intent.getStringExtra("systemName");
-                    String mqttUrl = intent.getStringExtra("mqttUrl");
-
-                    System system = new System(systemName, mqttUrl);
-
-                    String friendlyName = binding.textInputFriendlyName.getText().toString();
                     String deviceIeeeid = binding.textInputDeviceIeeeid.getText().toString();
-                    String deviceType = binding.textInputDeviceType.getText().toString();
-                    String deviceMqttPrefix = binding.textInputMqttPrefix.getText().toString();
-                    Devices device;
 
-                    if(Storage.device != null)
-                        if(!Objects.equals(img, ""))
-                            device = new Devices(deviceIeeeid, deviceType, img);
-                        else device = new Devices(deviceIeeeid, deviceType, Storage.device.getImgPath());
-                    else device = new Devices(deviceIeeeid, deviceType, img);
+                    if(Storage.device == null || !Objects.equals(Storage.device.getDeviceId(), deviceIeeeid)){
+                        if(dbHelper.isDeviceExists(deviceIeeeid))
+                            Toast.makeText(getApplicationContext(), "This device id is already exists", Toast.LENGTH_LONG).show();
+                        else saveDevice(deviceIeeeid, isDiodeChannel);
+                    }else saveDevice(deviceIeeeid, isDiodeChannel);
 
-                    device.setFriendlyName(friendlyName);
-                    device.setMqttPrefix(deviceMqttPrefix);
-                    if(!isDiodeChannel)
-                    {
-                        String diodeChannel = binding.textInputDeviceSwitchChannel.getText().toString();
-                        device.setDiodeChannel(diodeChannel);
-                    }
-                    if(Storage.device != null){
-                        dbHelper.updateDevice(device, Storage.device);
-                        Toast.makeText(getApplicationContext(), "Successfully updated device!", Toast.LENGTH_LONG).show();
-                    }else{
-                        dbHelper.addDevice(device, system);
-                        Toast.makeText(getApplicationContext(), "Successfully added device!", Toast.LENGTH_LONG).show();
-                    }
-                    dbHelper.close();
-                    finish();
                 }
                 else Toast.makeText(getApplicationContext(), "All fields should be filled", Toast.LENGTH_LONG).show();
             }
@@ -144,6 +116,45 @@ public class AddDevice extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+    }
+
+    private void saveDevice(String deviceIeeeid, Boolean isDiodeChannel){
+        Intent intent = getIntent();
+
+        String systemName = intent.getStringExtra("systemName");
+        String mqttUrl = intent.getStringExtra("mqttUrl");
+
+        System system = new System(systemName, mqttUrl);
+
+        String friendlyName = binding.textInputFriendlyName.getText().toString();
+
+        String deviceType = binding.textInputDeviceType.getText().toString();
+        String deviceMqttPrefix = binding.textInputMqttPrefix.getText().toString();
+
+        Devices device;
+
+        if(Storage.device != null)
+            if(!Objects.equals(img, ""))
+                device = new Devices(deviceIeeeid, deviceType, img);
+            else device = new Devices(deviceIeeeid, deviceType, Storage.device.getImgPath());
+        else device = new Devices(deviceIeeeid, deviceType, img);
+
+        device.setFriendlyName(friendlyName);
+        device.setMqttPrefix(deviceMqttPrefix);
+        if(!isDiodeChannel)
+        {
+            String diodeChannel = binding.textInputDeviceSwitchChannel.getText().toString();
+            device.setDiodeChannel(diodeChannel);
+        }
+        if(Storage.device != null){
+            dbHelper.updateDevice(device, Storage.device);
+            Toast.makeText(getApplicationContext(), "Successfully updated device!", Toast.LENGTH_LONG).show();
+        }else{
+            dbHelper.addDevice(device, system);
+            Toast.makeText(getApplicationContext(), "Successfully added device!", Toast.LENGTH_LONG).show();
+        }
+        dbHelper.close();
+        finish();
     }
 
     @Override
